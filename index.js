@@ -35,7 +35,7 @@ function tokenize(expression) {
 
         if (' '.includes(char)) {
             // ignore
-        } else if ('+-*/'.includes(char)) {
+        } else if ('+-*/^'.includes(char)) {
             tokens.push({
                 value: char,
                 type: TYPE_OPERATOR
@@ -57,13 +57,15 @@ function tokenize(expression) {
     return tokens
 }
 
-bindingPowers = {
+const bindingPowers = {
     '+': 10,
     '-': 10,
     '*': 20,
     '/': 20,
-    // '^': 
+    '^': 30
 }
+
+const rightAssociative = ['^']
 
 function greaterBindingPower(operator, lastOperator) {
     if (lastOperator === null) {
@@ -72,7 +74,7 @@ function greaterBindingPower(operator, lastOperator) {
     if (typeof operator !== "string" || typeof lastOperator !== "string") {
         throw new Error("not a string operator", operator, lastOperator)
     }
-    return bindingPowers[operator] > bindingPowers[lastOperator]
+    return bindingPowers[operator] > bindingPowers[lastOperator] || (operator == lastOperator && rightAssociative.includes(operator))
 }
 
 function parse(tokens, lastOperator) {
@@ -162,6 +164,8 @@ class Stream {
 
 }
 
-render("4 + 2 * 3 ** 3")
+// render("1+2+3+4+5")
+render("1-2-3-4")
+// render("1^2^3^4")
 
 document.querySelector("#expression").addEventListener("input", (e) => {render(e.target.value)})
