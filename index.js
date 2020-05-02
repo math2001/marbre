@@ -77,16 +77,17 @@ function greaterBindingPower(operator, lastOperator) {
 
 function parse(tokens, lastOperator) {
     const first = tokens.consume()
-    if (first.type !== TYPE_LITERAL_NUMBER) {
-        throw new Error(`expected literal number, got ${leftNode.type}`)
-    }
 
+    if (first.type !== TYPE_LITERAL_NUMBER) {
+        console.error("token", first)
+        throw new Error(`expected literal number`)
+    }
 
     let leftNode = first.value
     let i = 0
 
     while (i < 100) {
-        i ++
+        i++
         const nextToken = tokens.peek()
         if (nextToken !== null && nextToken.type === TYPE_OPERATOR && greaterBindingPower(nextToken.value, lastOperator)) {
             tokens.consume()
