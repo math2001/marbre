@@ -106,7 +106,9 @@ function greaterBindingPower(operator, lastOperator) {
 
 function parse(tokens, lastOperator=null) {
     const first = tokens.consume()
-
+    if (first === null) {
+        throw new Error("end of expression")
+    }
     let leftNode;
     if (first.type === TYPE_OPEN_BRACKET) {
         leftNode = parse(tokens, null)
@@ -125,11 +127,32 @@ function parse(tokens, lastOperator=null) {
         if (nextToken === null) {
             return leftNode
         }
-        if (nextToken.type === TYPE_CLOSED_BRACKET) {
+
+        if (nextToken.type !== TYPE_OPERATOR
+            && nextToken.type !== TYPE_CLOSED_BRACKET
+            && nextToken.type !== TYPE_IDENTIFIER
+            && nextToken.type !== TYPE_LITERAL_NUMBER
+            && nextToken.type !== TYPE_OPEN_BRACKET) {
+            console.log('nextToken', nextToken)
+            throw new Error("invalid token type")
+        }
+
+        if (nextToken.type === TYPE_OPEN_BRACKET) {
+            leftNode = {
+                leftNode: leftNode,
+                operator: '*',
+                rightNode: parse(tokens, null)
+            }
+        } else if (nextToken.type === TYPE_CLOSED_BRACKET) {
             tokens.consume()
             return leftNode
-        }
-        if (nextToken.type === TYPE_OPERATOR && greaterBindingPower(nextToken.value, lastOperator)) {
+        } else if (nextToken.type === TYPE_IDENTIFIER || nextToken.type === TYPE_LITERAL_NUMBER) {
+            leftNode = {
+                leftNode: leftNode,
+                operator: '*',
+                rightNode: parse(tokens, nextToken.value)
+            }
+        } else if (nextToken.type === TYPE_OPERATOR && greaterBindingPower(nextToken.value, lastOperator)) {
             tokens.consume()
             leftNode = {
                 leftNode: leftNode,
@@ -202,10 +225,7 @@ class Stream {
 
 }
 
-// render("1+2+3+4+5")
-// render("1-2-3-4")
-// render("1^2^3^4")
-render('1+(2+3)')
+render('alpha beta + 1')
 
 document.querySelector("#expression").addEventListener("input", (e) => {render(e.target.value)})
 
