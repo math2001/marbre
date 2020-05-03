@@ -1,6 +1,8 @@
 const TYPE_OPERATOR = "operator"
 
 const TYPE_LITERAL_NUMBER = "literal number"
+const TYPE_LITERAL_CONSTANT = "literal constant" // stuff like pi and e
+const TYPE_IDENTIFIER = "identifier"
 
 const TYPE_OPEN_BRACKET = 'open_bracket'
 const TYPE_CLOSED_BRACKET = 'closed_bracket'
@@ -18,7 +20,7 @@ function tokenize(expression) {
                 }
             } else if (currentToken.type === TYPE_LITERAL_NUMBER) {
                 currentToken.value += char
-            }tokens
+            }
             continue
         }
         if (currentToken !== null) {
@@ -80,18 +82,29 @@ function greaterBindingPower(operator, lastOperator) {
 function parse(tokens, lastOperator) {
     const first = tokens.consume()
 
-    if (first.type !== TYPE_LITERAL_NUMBER) {
+    let leftNode;
+    if (first.type === TYPE_OPEN_BRACKET) {
+        leftNode = parse(tokens, null)
+    } else if (first.type === TYPE_LITERAL_NUMBER) {
+        leftNode = first.value
+    } else {
         console.error("token", first)
         throw new Error(`expected literal number`)
     }
 
-    let leftNode = first.value
     let i = 0
 
     while (i < 100) {
         i++
         const nextToken = tokens.peek()
-        if (nextToken !== null && nextToken.type === TYPE_OPERATOR && greaterBindingPower(nextToken.value, lastOperator)) {
+        if (nextToken === null) {
+            return leftNode
+        }
+        if (nextToken.type === TYPE_CLOSED_BRACKET) {
+            tokens.consume()
+            return leftNode
+        }
+        if (nextToken.type === TYPE_OPERATOR && greaterBindingPower(nextToken.value, lastOperator)) {
             tokens.consume()
             leftNode = {
                 leftNode: leftNode,
@@ -123,7 +136,7 @@ function render(expression) {
         return
     }
 
-    elements.tokens.textContent = JSON.stringify(tokens, null, 2)
+    elements.tokens.textContent = JSON.stringify(tokens.map(token => token.value), null)
 
     try {
         tree = parse(new Stream(tokens), null)
@@ -165,7 +178,8 @@ class Stream {
 }
 
 // render("1+2+3+4+5")
-render("1-2-3-4")
+// render("1-2-3-4")
 // render("1^2^3^4")
+render('1+(2+3)')
 
 document.querySelector("#expression").addEventListener("input", (e) => {render(e.target.value)})
