@@ -1,29 +1,54 @@
 const TYPE_OPERATOR = "operator"
 
 const TYPE_LITERAL_NUMBER = "literal number"
-const TYPE_LITERAL_CONSTANT = "literal constant" // stuff like pi and e
 const TYPE_IDENTIFIER = "identifier"
 
 const TYPE_OPEN_BRACKET = 'open_bracket'
 const TYPE_CLOSED_BRACKET = 'closed_bracket'
+
+const asciiLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+const digits = '1234567890'
 
 function tokenize(expression) {
     const tokens = []
     let currentToken = null;
     // add a space to add the final currentToken if there is one.
     for (let char of expression + ' ') {
-        if ('1234567890'.includes(char)) {
-            if (currentToken === null) {
+        if (currentToken === null) {
+            if (digits.includes(char)) {
                 currentToken = {
                     type: TYPE_LITERAL_NUMBER,
                     value: char
                 }
-            } else if (currentToken.type === TYPE_LITERAL_NUMBER) {
+                continue
+
+            } else if (asciiLetters.includes(char)) {
+                currentToken = {
+                    type: TYPE_IDENTIFIER,
+                    value: char
+                }
+                continue
+            }
+        } else if (asciiLetters.includes(char)) {
+            if (currentToken.type === TYPE_IDENTIFIER) {
                 currentToken.value += char
+            } else {
+                console.error(currentToken)
+                throw new Error(`ascii letters not allowed in ${currentToken.type}`)
+            }
+            continue
+        } else if (digits.includes(char)) {
+            if (currentToken.type === TYPE_LITERAL_NUMBER || currentToken.type === TYPE_IDENTIFIER) {
+                currentToken.value += char
+            } else {
+                console.error(currentToken)
+                throw new Error(`digits not allowed in ${currentToken.type}`)
             }
             continue
         }
-        if (currentToken !== null) {
+        else {
+            // it's another type of character (ie the current token is finished)
+            // so we add the current token to the list
             if (currentToken.type === TYPE_LITERAL_NUMBER) {
                 tokens.push({
                     type: TYPE_LITERAL_NUMBER,
@@ -53,7 +78,7 @@ function tokenize(expression) {
                 type: TYPE_CLOSED_BRACKET
             })
         } else {
-            throw new Error(`invalid char '${char}'`)
+            throw new Error(`'${char}' not allowed anywhere in an expression`)
         }
     }
     return tokens
@@ -73,23 +98,23 @@ function greaterBindingPower(operator, lastOperator) {
     if (lastOperator === null) {
         return true
     }
-    if (typeof operator !== "string" || typeof lastOperator !== "string") {
-        throw new Error("not a string operator", operator, lastOperator)
-    }
+    assert(typeof operator === "string")
+    assert(typeof lastOperator === "string")
+
     return bindingPowers[operator] > bindingPowers[lastOperator] || (operator == lastOperator && rightAssociative.includes(operator))
 }
 
-function parse(tokens, lastOperator) {
+function parse(tokens, lastOperator=null) {
     const first = tokens.consume()
 
     let leftNode;
     if (first.type === TYPE_OPEN_BRACKET) {
         leftNode = parse(tokens, null)
-    } else if (first.type === TYPE_LITERAL_NUMBER) {
+    } else if (first.type === TYPE_LITERAL_NUMBER || first.type === TYPE_IDENTIFIER) {
         leftNode = first.value
     } else {
         console.error("token", first)
-        throw new Error(`expected literal number`)
+        throw new Error(`expected literal number, open bracket or identifier`)
     }
 
     let i = 0
@@ -183,3 +208,9 @@ class Stream {
 render('1+(2+3)')
 
 document.querySelector("#expression").addEventListener("input", (e) => {render(e.target.value)})
+
+function assert(condition) {
+    if (!condition) {
+        throw new Error("assertion error")
+    }
+}

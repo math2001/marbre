@@ -14,8 +14,9 @@ function test_tokenize() {
 function test_parse() {
     // just make sure it doesn't run with errors
     try {
-        parse(tokenize('12+43+a-b^2')),
-        parse(tokensize('(12+43)*a-beta'))
+        parse(new Stream(tokenize('12+43+a-b^2'))),
+        parse(new Stream(tokenize('(12+43)*a-beta')))
+        parse(new Stream(tokenize('beta1+alpha2')))
     } catch (e) {
         console.error(e)
         return e
@@ -27,6 +28,6 @@ function test_parse() {
     if (err) {
         document.querySelector("#tests-results").innerHTML = '<span class="error">' + err + '</span>'
     } else {
-        document.querySelector("#tests-results").textContent = "all is well :)"
+        document.querySelector("#tests-results").textContent = "All seems well :)"
     }
 })()
