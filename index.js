@@ -171,6 +171,7 @@ function render(expression) {
         expression: document.querySelector("#expression"),
         tokens: document.querySelector("#tokens"),
         tree: document.querySelector("#tree"),
+        terms: document.querySelector("#terms")
     }
     elements.expression.value = expression
 
@@ -194,6 +195,15 @@ function render(expression) {
         return
     }
     elements.tree.textContent = JSON.stringify(tree, null, 2)
+
+    try {
+        terms = treeToTerms(tree)
+    } catch (e) {
+        elements.terms.innerHTML = `<span class="error">${e}</span>`
+        console.error(e)
+        return
+    }
+    elements.terms.innerHTML = JSON.stringify(terms, null, 2)
 }
 
 
@@ -225,7 +235,7 @@ class Stream {
 
 }
 
-render('alpha beta + 1')
+render('2*a+3*a+5*a')
 
 document.querySelector("#expression").addEventListener("input", (e) => {render(e.target.value)})
 
