@@ -114,6 +114,20 @@ function parse(tokens, lastOperator=null) {
         leftNode = parse(tokens, null)
     } else if (first.type === TYPE_LITERAL_NUMBER || first.type === TYPE_IDENTIFIER) {
         leftNode = first.value
+    } else if (first.type === TYPE_OPERATOR && first.value === "-") {
+        const nextToken = tokens.consume()
+        if (!nextToken) {
+            throw new Error("end of expression after -")
+        }
+        if (nextToken.type === TYPE_LITERAL_NUMBER) {
+            leftNode = -nextToken.value
+        } else if (nextToken.type === TYPE_IDENTIFIER) {
+            leftNode = {
+                leftNode: -1,
+                operator: '*',
+                rightNode: nextToken.value
+            }
+        }
     } else {
         console.error("token", first)
         throw new Error(`expected literal number, open bracket or identifier`)

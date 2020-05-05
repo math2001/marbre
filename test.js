@@ -19,6 +19,9 @@ function test_parse() {
         parse(new Stream(tokenize('beta1+alpha2')))
         parse(new Stream(tokenize('al_p_ha _8eta + 1 * pi')))
         parse(new Stream(tokenize('beta1 + alpha2 (1 + 3)^2')))
+        parse(new Stream(tokenize('-2')))
+        parse(new Stream(tokenize('-a')))
+        parse(new Stream(tokenize('-a + b')))
     } catch (e) {
         console.error(e)
         return e
