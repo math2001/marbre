@@ -1,2 +1,4 @@
 - split index.js
 - 3a should mean 3 * a
+- tree to expression
+- implement some test system. This is horrible

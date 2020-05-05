@@ -147,7 +147,7 @@ function parse(tokens, lastOperator=null) {
             && nextToken.type !== TYPE_IDENTIFIER
             && nextToken.type !== TYPE_LITERAL_NUMBER
             && nextToken.type !== TYPE_OPEN_BRACKET) {
-            console.log('nextToken', nextToken)
+            console.error('nextToken', nextToken)
             throw new Error("invalid token type")
         }
 
@@ -218,8 +218,30 @@ function render(expression) {
         return
     }
     elements.terms.innerHTML = JSON.stringify(terms, null, 2)
+
+    console.log(JSON.stringify(collectLikeTerms(tree, "a"), null, 2))
 }
 
+function objectEqual(a, b) {
+    if (typeof a === "string" || typeof a === "number" || typeof a === "boolean") {
+        return a === b
+    }
+    if (Object.keys(a).length !== Object.keys(b).length) {
+        return false
+    }
+    for (let key of Object.keys(a)) {
+        if (typeof a[key] === "string" || typeof a[key] === "number" || typeof a[key] === "boolean") {
+            if (a[key] !== b[key]) {
+                return false
+            }
+        } else if (typeof a[key] === "object") {
+            if (!objectEqual(a[key], b[key])) {
+                return false
+            }
+        }
+    }
+    return true
+}
 
 class Stream {
     constructor(tokens) {
@@ -246,10 +268,9 @@ class Stream {
     preview() {
         return JSON.stringify(this.tokens.map(e => e.value).slice(this.index, this.length))
     }
-
 }
 
-render('2*a+3*a+5*a')
+render('2 a - 2 a + 1')
 
 document.querySelector("#expression").addEventListener("input", (e) => {render(e.target.value)})
 
