@@ -1,4 +1,9 @@
+- implement some test system. This is horrible
 - split index.js
 - 3a should mean 3 * a
 - tree to expression
-- implement some test system. This is horrible
+- render tree
+- 1 2 should yield an error?
+- simplify the -1 thing
+- support float
+- collect terms is buggy (a+b+b) gives a(1+1+1)

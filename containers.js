@@ -1,4 +1,4 @@
-class Queue {
+export class Queue {
     constructor(initialLength, initialElements=[]) {
         if (initialLength <= initialElements.length) {
             console.error("initial length:", initialLength)
@@ -36,5 +36,32 @@ class Queue {
 
     empty() {
         return this.start === this.end
+    }
+}
+
+export class Stream {
+    constructor(tokens) {
+        this.tokens = tokens
+        this.index = 0
+        this.length = this.tokens.length
+    }
+
+    consume() {
+        if (this.index + 1 > this.length) {
+            return null
+        }
+        this.index += 1
+        return this.tokens[this.index - 1]
+    }
+
+    peek() {
+        if (this.index + 1 > this.length) {
+            return null
+        }
+        return this.tokens[this.index]
+    }
+
+    preview() {
+        return JSON.stringify(this.tokens.map(e => e.value).slice(this.index, this.length))
     }
 }
