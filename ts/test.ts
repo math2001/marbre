@@ -2,7 +2,12 @@ import { objectEqual } from "./utils.js"
 import { tokenize, TYPE } from "./tokenizer.js"
 import { parse } from "./parser.js"
 
-function testTable(func, table) {
+interface TableRow {
+    arguments: any[]
+    output: any
+}
+
+function testTable(func: (...args: any[]) => any, table: TableRow[]) {
     let numberSuccess = 0
     let errors = []
     let failures = []
@@ -153,9 +158,6 @@ function testParse() {
         if (result.failures.length > 0) {
             totalFailures.push({ name: func.name, values: result.failures })
         }
-    }
-
-    function displayReports(reports) {
     }
 
     const numberTests = totalSuccesses + totalErrors.length + totalFailures.length

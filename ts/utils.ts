@@ -1,4 +1,4 @@
-export function assert(condition, message = null) {
+export function assert(condition: boolean, message?: string): asserts condition {
     if (!condition) {
         if (message) {
             console.error(message)
@@ -7,7 +7,7 @@ export function assert(condition, message = null) {
     }
 }
 
-export function objectEqual(a, b) {
+export function objectEqual(a: any, b: any) {
     if (typeof a === "string" || typeof a === "number" || typeof a === "boolean") {
         return a === b
     }

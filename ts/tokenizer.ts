@@ -1,19 +1,29 @@
+import { assert } from "./utils";
+
 const asciiLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
 const digits = '1234567890'
 
-export const TYPE = {
-    OPERATOR: "operator",
+export enum TYPE {
+    OPERATOR = "operator",
+    LITERAL_NUMBER = "literal number",
+    IDENTIFIER = "identifier",
 
-    LITERAL_NUMBER: "literal number",
-    IDENTIFIER: "identifier",
-
-    OPEN_BRACKET: 'open_bracket',
-    CLOSED_BRACKET: 'closed_bracket',
+    OPEN_BRACKET = 'open_bracket',
+    CLOSED_BRACKET = 'closed_bracket',
 }
 
-export function tokenize(expression) {
-    const tokens = []
-    let currentToken = null;
+export interface Token {
+    // FIXME: make this into an enum?
+    type: TYPE,
+    value: number | string,
+}
+
+export function tokenize(expression: string) {
+    const tokens: Token[] = []
+    let currentToken: {
+        type: TYPE,
+        value: string
+    } | null = null;
 
     // add a space to add the final currentToken if there is one.
     for (let char of expression + ' ') {

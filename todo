@@ -1,10 +1,10 @@
-- switch to typescript
 - tree to expression
 - render tree
 - 1 2 should yield an error?
 - support float
 - error on unmatched brackets
 - collect terms is buggy (a+b+b) gives a(1+1+1)
+- queue should wrap around :^) Not useful but fun
 
 DONE:
 
@@ -12,3 +12,4 @@ DONE:
 - split index.js
 - 3a should mean 3 * a
 - simplify the -1 thing
+- switch to typescript

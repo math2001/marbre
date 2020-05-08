@@ -1,13 +1,19 @@
 import { tokenize } from './tokenizer.js'
 import { parse } from './parser.js'
+import { assert } from './utils.js'
 
-function render(expression) {
+function render(expression: string) {
     const elements = {
         expression: document.querySelector("#expression"),
         tokens: document.querySelector("#tokens"),
         tree: document.querySelector("#tree"),
-        terms: document.querySelector("#terms")
+        // terms: document.querySelector("#terms")
     }
+    assert(elements.expression instanceof HTMLInputElement)
+    assert(elements.tokens instanceof HTMLElement)
+    assert(elements.tree instanceof HTMLElement)
+    // assert(elements.terms instanceof HTMLElement)
+
     elements.expression.value = expression
 
     let tree, tokens
@@ -30,6 +36,7 @@ function render(expression) {
 
 function main() {
     render('3(a+b)+3')
+    // @ts-ignore
     document.querySelector("#expression").addEventListener("input", (e) => { render(e.target.value) })
 }
 

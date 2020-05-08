@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 // manipulate a tree representing an expression
 
 // an equation is just a list of trees
