@@ -1,38 +1,147 @@
-function test_tokenize() {
-    const table = {
-        "1 + 2": [
-            {type: TYPE_LITERAL_NUMBER, value: 1},
-            {type: TYPE_OPERATOR, value: "+"},
-            {type: TYPE_LITERAL_NUMBER, value: 2}
-        ]
+import { objectEqual } from "./utils.js"
+import { tokenize, TYPE } from "./tokenizer.js"
+import { parse } from "./parser.js"
+
+function testTable(func, table) {
+    let numberSuccess = 0
+    let errors = []
+    let failures = []
+    let output
+    for (let row of table) {
+        try {
+            output = func(...row.arguments)
+        } catch (e) {
+            failures.push({
+                arguments: row.arguments,
+                error: e
+            })
+            continue
+        }
+        if (objectEqual(row.output, output)) {
+            numberSuccess++
+        } else {
+            errors.push({
+                arguments: row.arguments,
+                expectedOutput: row.output,
+                actualOutput: output
+            })
+        }
     }
-    // for (let expression in table) {
-    //     if (tokenize(expression) )
-    // }
+    return { numberSuccess, errors, failures }
 }
 
-function test_parse() {
+function testTokenize() {
+    const table = [
+        {
+            arguments: ["1 + 2"],
+            output: [
+                { type: TYPE.LITERAL_NUMBER, value: 1 },
+                { type: TYPE.OPERATOR, value: "+" },
+                { type: TYPE.LITERAL_NUMBER, value: 2 }
+            ]
+        },
+        {
+            arguments: ["(alpha1 + alpha2) * pi ^ 23"],
+            output: [
+                { type: TYPE.OPEN_BRACKET, value: '(' },
+                { type: TYPE.IDENTIFIER, value: "alpha1" },
+                { type: TYPE.OPERATOR, value: "+" },
+                { type: TYPE.IDENTIFIER, value: "alpha2" },
+                { type: TYPE.CLOSED_BRACKET, value: ')' },
+                { type: TYPE.OPERATOR, value: "*" },
+                { type: TYPE.IDENTIFIER, value: "pi" },
+                { type: TYPE.OPERATOR, value: "^" },
+                { type: TYPE.LITERAL_NUMBER, value: 23 },
+            ]
+        }
+    ]
+    return testTable(tokenize, table)
+}
+
+function testParse() {
     // just make sure it doesn't run with errors
-    try {
-        parse(new Stream(tokenize('12+43+a-b^2'))),
-        parse(new Stream(tokenize('(12+43)*a-beta')))
-        parse(new Stream(tokenize('beta1+alpha2')))
-        parse(new Stream(tokenize('al_p_ha _8eta + 1 * pi')))
-        parse(new Stream(tokenize('beta1 + alpha2 (1 + 3)^2')))
-        parse(new Stream(tokenize('-2')))
-        parse(new Stream(tokenize('-a')))
-        parse(new Stream(tokenize('-a + b')))
-    } catch (e) {
-        console.error(e)
-        return e
-    }
+    const table = [
+        {
+            arguments: ['1*2+3'],
+            output: {
+                leftNode: {
+                    leftNode: 1,
+                    operator: "*",
+                    rightNode: 2,
+                },
+                operator: "+",
+                rightNode: 3
+            }
+        },
+        {
+            arguments: ['23*(alpha+2)^3+beta'],
+            output: {
+                leftNode: {
+                    leftNode: 23,
+                    operator: "*",
+                    rightNode: {
+                        leftNode: {
+                            leftNode: "alpha",
+                            operator: "+",
+                            rightNode: 2,
+                        },
+                        operator: "^",
+                        rightNode: 3
+                    }
+                },
+                operator: "+",
+                rightNode: "beta"
+            }
+        }
+    ]
+    return testTable(parse, table)
 }
 
-;(function (){
-    const err = test_parse()
-    if (err) {
-        document.querySelector("#tests-results").innerHTML = '<span class="error">' + err + '</span>'
-    } else {
-        document.querySelector("#tests-results").textContent = "All seems well :)"
+; (function () {
+
+    let testFunctions = [testParse, testTokenize]
+    let totalSuccesses = 0
+    let totalErrors = []
+    let totalFailures = []
+
+    for (let func of testFunctions) {
+        const result = func()
+        totalSuccesses += result.numberSuccess
+        if (result.errors.length > 0) {
+            totalErrors.push({ name: func.name, values: result.errors })
+        }
+        if (result.failures.length > 0) {
+            totalFailures.push({ name: func.name, values: result.failures })
+        }
+    }
+
+    function displayReports(reports) {
+    }
+
+    const numberTests = totalSuccesses + totalErrors.length + totalFailures.length
+    console.info(`passing tests: ${totalSuccesses} / ${numberTests}`)
+    if (totalErrors.length > 0) {
+        console.info("errors")
+        for (let report of totalErrors) {
+            console.group(report.name)
+            for (let error of report.values) {
+                console.error("arguments", error.arguments)
+                console.error("actual output", error.actualOutput)
+                console.error("expected output", error.expectedOutput)
+            }
+            console.groupEnd()
+        }
+    }
+
+    if (totalFailures.length > 0) {
+        console.info("failures")
+        for (let report of totalFailures) {
+            console.group(report.name)
+            for (let error of report.values) {
+                console.error("arguments", error.arguments)
+                console.error("errors", error.error)
+            }
+            console.groupEnd()
+        }
     }
 })()

@@ -1,6 +1,7 @@
-import {tokenize} from './tokenizer.js'
-import {parse} from './parser.js'
+import { tokenize } from './tokenizer.js'
+import { parse } from './parser.js'
 
+console.log(tokenize('(a+b)'))
 function render(expression) {
     const elements = {
         expression: document.querySelector("#expression"),
@@ -24,7 +25,9 @@ function render(expression) {
 
 function main() {
     render('2 a - 2 a + 1')
-    document.querySelector("#expression").addEventListener("input", (e) => {render(e.target.value)})
+    document.querySelector("#expression").addEventListener("input", (e) => { render(e.target.value) })
 }
 
 main()
+
+window.parse = parse

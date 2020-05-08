@@ -1,5 +1,5 @@
 export class Queue {
-    constructor(initialLength, initialElements=[]) {
+    constructor(initialLength, initialElements = []) {
         if (initialLength <= initialElements.length) {
             console.error("initial length:", initialLength)
             console.error("initial elements:", initialElements)

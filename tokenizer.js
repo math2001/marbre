@@ -14,6 +14,7 @@ export const TYPE = {
 export function tokenize(expression) {
     const tokens = []
     let currentToken = null;
+
     // add a space to add the final currentToken if there is one.
     for (let char of expression + ' ') {
         if (currentToken === null) {
@@ -31,6 +32,7 @@ export function tokenize(expression) {
                 }
                 continue
             }
+
         } else if (asciiLetters.includes(char)) {
             if (currentToken.type === TYPE.IDENTIFIER) {
                 currentToken.value += char
@@ -47,8 +49,7 @@ export function tokenize(expression) {
                 throw new Error(`digits not allowed in ${currentToken.type}`)
             }
             continue
-        }
-        else {
+        } else {
             // it's another type of character (ie the current token is finished)
             // so we add the current token to the list
             if (currentToken.type === TYPE.LITERAL_NUMBER) {
@@ -73,6 +74,11 @@ export function tokenize(expression) {
             tokens.push({
                 value: char,
                 type: TYPE.CLOSED_BRACKET
+            })
+        } else if (char === '(') {
+            tokens.push({
+                value: '(',
+                type: TYPE.OPEN_BRACKET
             })
         } else {
             throw new Error(`'${char}' not allowed anywhere in an expression`)
