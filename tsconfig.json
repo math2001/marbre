@@ -1,21 +1,17 @@
 {
-    "compilerOptions": {
-        "target": "ES6",
-        "lib": [
-            "ES6",
-            "ES2017",
-            "dom",
-        ],
-        "sourceMap": true,
-        "module": "ES6",
-        "outDir": "js",
-        "strict": true,
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "strictBindCallApply": true,
-        "strictPropertyInitialization": true,
-        "noImplicitThis": true,
-        "alwaysStrict": true
-    },
+  "compilerOptions": {
+    "target": "ES6",
+    "lib": ["ES6", "ES2017", "dom"],
+    "sourceMap": true,
+    "module": "ES6",
+    "outDir": "js",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true
+  }
 }
