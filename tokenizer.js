@@ -36,6 +36,16 @@ export function tokenize(expression) {
         } else if (asciiLetters.includes(char)) {
             if (currentToken.type === TYPE.IDENTIFIER) {
                 currentToken.value += char
+            } else if (currentToken.type === TYPE.LITERAL_NUMBER) {
+                // we are a case like 3alpha and we want 3 "alpha"
+                tokens.push({
+                    type: TYPE.LITERAL_NUMBER,
+                    value: parseInt(currentToken.value)
+                })
+                currentToken = {
+                    type: TYPE.IDENTIFIER,
+                    value: char
+                }
             } else {
                 console.error(currentToken)
                 throw new Error(`ascii letters not allowed in ${currentToken.type}`)

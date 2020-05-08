@@ -53,6 +53,10 @@ function testTokenize() {
                 { type: TYPE.OPERATOR, value: "^" },
                 { type: TYPE.LITERAL_NUMBER, value: 23 },
             ]
+        },
+        {
+            arguments: ['3a+3(b+3)'],
+            output: tokenize('3 a + 3 (b + 3)')
         }
     ]
     return testTable(tokenize, table)

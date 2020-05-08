@@ -1,5 +1,4 @@
-- implement some test system. This is horrible
-- split index.js
+- switch to typescript
 - 3a should mean 3 * a
 - tree to expression
 - render tree
@@ -8,3 +7,8 @@
 - support float
 - collect terms is buggy (a+b+b) gives a(1+1+1)
 - error on unmatched brackets
+
+DONE:
+
+- implement some test system. This is horrible
+- split index.js

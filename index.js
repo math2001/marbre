@@ -10,7 +10,14 @@ function render(expression) {
     }
     elements.expression.value = expression
 
-    let tree
+    let tree, tokens
+    try {
+        tokens = tokenize(expression)
+    } catch (e) {
+        elements.tokens.innerHTML = `<span class="error">${e}</span>`
+        throw e
+    }
+    elements.tokens.innerHTML = JSON.stringify(tokens.map(token => token.value))
     try {
         tree = parse(expression)
     } catch (e) {
