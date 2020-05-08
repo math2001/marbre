@@ -72,7 +72,6 @@ export function parseTokenStream(tokens, lastOperator = null) {
                 rightNode: parseTokenStream(tokens, null)
             }
         } else if ((nextToken.type === TYPE.IDENTIFIER || nextToken.type === TYPE.LITERAL_NUMBER) && greaterBindingPower('*', lastOperator)) {
-            tokens.consume()
             leftNode = {
                 leftNode: leftNode,
                 operator: '*',

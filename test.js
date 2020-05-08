@@ -116,6 +116,14 @@ function testParse() {
         {
             arguments: ['a*b^c'],
             output: parse('(a*(b^(c)))')
+        },
+        {
+            arguments: ['3a'],
+            output: parse('3*a')
+        },
+        {
+            arguments: ['3a+2b'],
+            output: parse('3*a+2*b')
         }
     ]
     return testTable(parse, table)
