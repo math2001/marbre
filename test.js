@@ -128,6 +128,10 @@ function testParse() {
         {
             arguments: ['3(a+b)+2'],
             output: parse('3*(a+b)+2')
+        },
+        {
+            arguments: ['-(a+b)'],
+            output: parse("(-1)*(a+b)")
         }
     ]
     return testTable(parse, table)

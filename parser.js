@@ -37,18 +37,34 @@ export function parseTokenStream(tokens, lastOperator = null) {
     } else if (first.type === TYPE.LITERAL_NUMBER || first.type === TYPE.IDENTIFIER) {
         leftNode = first.value
     } else if (first.type === TYPE.OPERATOR && first.value === "-") {
-        const nextToken = tokens.consume()
+
+        const nextToken = tokens.peek()
+
         if (!nextToken) {
             throw new Error("end of expression after -")
         }
+
         if (nextToken.type === TYPE.LITERAL_NUMBER) {
             leftNode = -nextToken.value
+            tokens.consume()
         } else if (nextToken.type === TYPE.IDENTIFIER) {
             leftNode = {
                 leftNode: -1,
                 operator: '*',
                 rightNode: nextToken.value
             }
+            tokens.consume()
+        } else if (nextToken.type === TYPE.OPEN_BRACKET) {
+            // make sure that we don't consume here, because the following parse call needs
+            // the opening bracket
+            leftNode = {
+                leftNode: -1,
+                operator: "*",
+                rightNode: parseTokenStream(tokens, null)
+            }
+        } else {
+            console.error("token", nextToken)
+            throw new Error("unexpected token after -")
         }
     } else {
         console.error("token", first)
