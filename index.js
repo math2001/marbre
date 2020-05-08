@@ -29,10 +29,8 @@ function render(expression) {
 }
 
 function main() {
-    render('23 * (alpha+2)^3+beta')
+    render('3(a+b)+3')
     document.querySelector("#expression").addEventListener("input", (e) => { render(e.target.value) })
 }
 
 main()
-
-window.parse = parse

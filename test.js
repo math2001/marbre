@@ -124,6 +124,10 @@ function testParse() {
         {
             arguments: ['3a+2b'],
             output: parse('3*a+2*b')
+        },
+        {
+            arguments: ['3(a+b)+2'],
+            output: parse('3*(a+b)+2')
         }
     ]
     return testTable(parse, table)

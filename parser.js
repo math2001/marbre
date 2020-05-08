@@ -65,11 +65,11 @@ export function parseTokenStream(tokens, lastOperator = null) {
         }
 
         if (nextToken.type === TYPE.OPEN_BRACKET && greaterBindingPower('*', lastOperator)) {
-            tokens.consume()
+            // tokens.consume()
             leftNode = {
                 leftNode: leftNode,
                 operator: '*',
-                rightNode: parseTokenStream(tokens, null)
+                rightNode: parseTokenStream(tokens, '*')
             }
         } else if ((nextToken.type === TYPE.IDENTIFIER || nextToken.type === TYPE.LITERAL_NUMBER) && greaterBindingPower('*', lastOperator)) {
             leftNode = {
