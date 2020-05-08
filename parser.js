@@ -16,8 +16,8 @@ function greaterBindingPower(operator, lastOperator) {
     if (lastOperator === null) {
         return true
     }
-    assert(typeof operator === "string")
-    assert(typeof lastOperator === "string")
+    assert(bindingPowers[operator] !== undefined, `operator: ${operator}`)
+    assert(bindingPowers[lastOperator] !== undefined, `lastOperator: ${lastOperator}`)
 
     return bindingPowers[operator] > bindingPowers[lastOperator] || (operator == lastOperator && rightAssociative.includes(operator))
 }
@@ -65,7 +65,6 @@ export function parseTokenStream(tokens, lastOperator = null) {
         }
 
         if (nextToken.type === TYPE.OPEN_BRACKET && greaterBindingPower('*', lastOperator)) {
-            // tokens.consume()
             leftNode = {
                 leftNode: leftNode,
                 operator: '*',
@@ -75,7 +74,7 @@ export function parseTokenStream(tokens, lastOperator = null) {
             leftNode = {
                 leftNode: leftNode,
                 operator: '*',
-                rightNode: parseTokenStream(tokens, nextToken.value)
+                rightNode: parseTokenStream(tokens, "*")
             }
         } else if (nextToken.type === TYPE.OPERATOR && greaterBindingPower(nextToken.value, lastOperator)) {
             tokens.consume()

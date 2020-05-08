@@ -1,5 +1,8 @@
-export function assert(condition) {
+export function assert(condition, message = null) {
     if (!condition) {
+        if (message) {
+            console.error(message)
+        }
         throw new Error("assertion error")
     }
 }
