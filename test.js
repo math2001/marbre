@@ -74,14 +74,26 @@ function testParse() {
             }
         },
         {
-            arguments: ['23*(alpha+2)^3+beta'],
+            arguments: ['1+2*3'],
+            output: {
+                leftNode: 1,
+                operator: '+',
+                rightNode: {
+                    leftNode: 2,
+                    operator: '*',
+                    rightNode: 3
+                }
+            }
+        },
+        {
+            arguments: ['2*(a+2)^3+b'],
             output: {
                 leftNode: {
-                    leftNode: 23,
+                    leftNode: 2,
                     operator: "*",
                     rightNode: {
                         leftNode: {
-                            leftNode: "alpha",
+                            leftNode: "a",
                             operator: "+",
                             rightNode: 2,
                         },
@@ -90,8 +102,16 @@ function testParse() {
                     }
                 },
                 operator: "+",
-                rightNode: "beta"
+                rightNode: "b"
             }
+        },
+        {
+            arguments: ['a+b+c'],
+            output: parse('(a+b)+c')
+        },
+        {
+            arguments: ['a*b^c'],
+            output: parse('(a*(b^(c)))')
         }
     ]
     return testTable(parse, table)

@@ -7,3 +7,4 @@
 - simplify the -1 thing
 - support float
 - collect terms is buggy (a+b+b) gives a(1+1+1)
+- error on unmatched brackets

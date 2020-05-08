@@ -1,7 +1,6 @@
 import { tokenize } from './tokenizer.js'
 import { parse } from './parser.js'
 
-console.log(tokenize('(a+b)'))
 function render(expression) {
     const elements = {
         expression: document.querySelector("#expression"),
@@ -12,7 +11,6 @@ function render(expression) {
     elements.expression.value = expression
 
     let tree
-
     try {
         tree = parse(expression)
     } catch (e) {
@@ -24,7 +22,7 @@ function render(expression) {
 }
 
 function main() {
-    render('2 a - 2 a + 1')
+    render('23 * (alpha+2)^3+beta')
     document.querySelector("#expression").addEventListener("input", (e) => { render(e.target.value) })
 }
 
