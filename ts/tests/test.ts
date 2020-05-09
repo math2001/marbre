@@ -2,14 +2,20 @@ import { objectEqual, assert } from "../utils.js";
 import { testParse } from "./test_parse.js";
 import { testTokenizer } from "./test_tokenizer.js";
 import { testQueue } from "./test_queue.js";
+import { testGetTermsFromTree } from "./test_equation.js";
 
-interface TableRow {
+export interface TableRow {
   arguments: any[];
   output: any;
 }
 
 (function () {
-  const testFunctions = [testParse, testTokenizer, testQueue];
+  const testFunctions = [
+    testParse,
+    testTokenizer,
+    testQueue,
+    testGetTermsFromTree,
+  ];
 
   let totalSuccesses = 0;
   let totalErrors = [];

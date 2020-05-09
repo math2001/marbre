@@ -2,6 +2,7 @@ import { tokenize } from "./tokenizer.js";
 import { parse } from "./parser.js";
 import { assert } from "./utils.js";
 import { tree2expression } from "./tree2expression.js";
+import { getTermsFromTree } from "./equation.js";
 
 function render(expression: string) {
   const elements = {
@@ -46,6 +47,9 @@ function render(expression: string) {
     return;
   }
   elements.explicitExpression.textContent = explicitExpression;
+
+  console.log();
+  console.log(JSON.stringify(getTermsFromTree(tree), null, 2));
 }
 
 function main() {

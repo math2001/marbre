@@ -1,9 +1,11 @@
-- tree to expression
+- collect terms is buggy (a+b+b) gives a(1+1+1)
 - render tree
 - 1 2 should yield an error?
 - support float
 - error on unmatched brackets
-- collect terms is buggy (a+b+b) gives a(1+1+1)
+- rename Node interface
+- rename Node.leftNode
+- create an alias for Node | number | string
 
 DONE:
 
@@ -13,3 +15,4 @@ DONE:
 - simplify the -1 thing
 - switch to typescript
 - queue should wrap around :^) Not useful but fun
+- tree to expression
