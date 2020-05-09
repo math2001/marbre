@@ -1,15 +1,12 @@
 // @ts-nocheck
 
 import { assert } from "./utils.js";
-import { Node } from "./parser.js";
+import { ParentNode } from "./parser.js";
 // manipulate a tree representing an expression
 
 // an equation is just a list of trees
 
-function collectLikeTerms(
-  tree: Node | number | string,
-  targetTerm: Node | number | string
-) {
+function collectLikeTerms(tree: Node, targetTerm: Node) {
   assert(typeof targetTerm !== "number");
 
   const terms = treeToTerms(tree);
@@ -63,7 +60,7 @@ function collectLikeTerms(
 }
 
 // getMultiple(expr(a x, x)) == a. Only works on one product.
-function _getMultiple(tree: Node, targetTerm) {
+function _getMultiple(tree: ParentNode, targetTerm) {
   if (tree.operator !== "*") {
     console.error("tree:", tree);
     throw new Error(
@@ -71,17 +68,17 @@ function _getMultiple(tree: Node, targetTerm) {
     );
   }
 
-  if (tree.leftNode === targetTerm) {
-    return tree.rightNode;
-  } else if (tree.rightNode === targetTerm) {
-    return tree.leftNode;
+  if (tree.left === targetTerm) {
+    return tree.right;
+  } else if (tree.right === targetTerm) {
+    return tree.left;
   }
 
-  assert(tree.leftNode !== undefined);
-  assert(tree.rightNode !== undefined);
+  assert(tree.left !== undefined);
+  assert(tree.right !== undefined);
   // copy the tree
   const copy = Object.assign({}, tree);
-  const queue = new Queue(100, [copy.leftNode, copy.rightNode]);
+  const queue = new Queue(100, [copy.left, copy.right]);
 
   let head,
     parent = copy;
@@ -104,26 +101,26 @@ function _getMultiple(tree: Node, targetTerm) {
     if (objectEqual(head.leftNode, targetTerm)) {
       console.log("match left! parent", parent);
       console.log("head", head);
-      if (objectEqual(parent.leftNode, head)) {
+      if (objectEqual(parent.left, head)) {
         console.log("replace left");
-        parent.leftNode = head.rightNode;
-      } else if (objectEqual(parent.rightNode, head)) {
+        parent.left = head.rightNode;
+      } else if (objectEqual(parent.right, head)) {
         console.log("replace right");
-        parent.rightNode = head.rightNode;
+        parent.right = head.rightNode;
       } else {
-        console.log(JSON.stringify(parent.leftNode, null, 2));
+        console.log(JSON.stringify(parent.left, null, 2));
         console.log(JSON.stringify(head, null, 2));
-        console.log(objectEqual(parent.leftNode, head));
+        console.log(objectEqual(parent.left, head));
         assert(false);
       }
       return copy;
     } else if (objectEqual(head.rightNode, targetTerm)) {
       console.log("match right! parent", parent);
       console.log("head", head);
-      if (objectEqual(parent.leftNode, head)) {
-        parent.leftNode = head.leftNode;
-      } else if (objectEqual(parent.rightNode, head)) {
-        parent.rightNode = head.leftNode;
+      if (objectEqual(parent.left, head)) {
+        parent.left = head.leftNode;
+      } else if (objectEqual(parent.right, head)) {
+        parent.right = head.leftNode;
       }
       return copy;
     }

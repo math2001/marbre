@@ -3,6 +3,7 @@ import { testParse } from "./test_parse.js";
 import { testTokenizer } from "./test_tokenizer.js";
 import { testQueue } from "./test_queue.js";
 import { testGetTermsFromTree, testNegateTerm } from "./test_equation.js";
+import { testObjectEqual } from "./test_utils.js";
 
 export interface TableRow {
   arguments: any[];
@@ -11,6 +12,7 @@ export interface TableRow {
 
 (function () {
   const testFunctions = [
+    testObjectEqual,
     testParse,
     testTokenizer,
     testQueue,

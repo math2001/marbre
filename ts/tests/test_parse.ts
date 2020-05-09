@@ -7,45 +7,45 @@ export function testParse() {
     {
       arguments: ["1*2+3"],
       output: {
-        leftNode: {
-          leftNode: 1,
+        left: {
+          left: 1,
           operator: "*",
-          rightNode: 2,
+          right: 2,
         },
         operator: "+",
-        rightNode: 3,
+        right: 3,
       },
     },
     {
       arguments: ["1+2*3"],
       output: {
-        leftNode: 1,
+        left: 1,
         operator: "+",
-        rightNode: {
-          leftNode: 2,
+        right: {
+          left: 2,
           operator: "*",
-          rightNode: 3,
+          right: 3,
         },
       },
     },
     {
       arguments: ["2*(a+2)^3+b"],
       output: {
-        leftNode: {
-          leftNode: 2,
+        left: {
+          left: 2,
           operator: "*",
-          rightNode: {
-            leftNode: {
-              leftNode: "a",
+          right: {
+            left: {
+              left: "a",
               operator: "+",
-              rightNode: 2,
+              right: 2,
             },
             operator: "^",
-            rightNode: 3,
+            right: 3,
           },
         },
         operator: "+",
-        rightNode: "b",
+        right: "b",
       },
     },
     {

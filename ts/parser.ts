@@ -12,9 +12,11 @@ const bindingPowers: { [key: string]: number } = {
 
 const rightAssociative: string[] = ["^"];
 
-export interface Node {
-  leftNode: Node | number | string;
-  rightNode: Node | number | string;
+export type Leaf = number | string;
+export type Node = Leaf | ParentNode;
+export interface ParentNode {
+  left: Node;
+  right: Node;
   operator: string;
 }
 
@@ -40,13 +42,13 @@ function greaterBindingPower(
 export function parseTokenStream(
   tokens: Stream<Token>,
   lastOperator: string | null = null
-): Node | string | number {
+): Node {
   const first = tokens.consume();
   if (first === null) {
     throw new Error("end of expression");
   }
 
-  let leftNode;
+  let leftNode: Node;
   if (first.type === TYPE.OPEN_BRACKET) {
     // last operator is null because what's within a bracket is an independent expression
     leftNode = parseTokenStream(tokens, null);
@@ -70,18 +72,18 @@ export function parseTokenStream(
       tokens.consume();
     } else if (nextToken.type === TYPE.IDENTIFIER) {
       leftNode = {
-        leftNode: -1,
+        left: -1,
         operator: "*",
-        rightNode: nextToken.value,
+        right: nextToken.value,
       };
       tokens.consume();
     } else if (nextToken.type === TYPE.OPEN_BRACKET) {
       // make sure that we don't consume here, because the following parse call needs
       // the opening bracket
       leftNode = {
-        leftNode: -1,
+        left: -1,
         operator: "*",
-        rightNode: parseTokenStream(tokens, null),
+        right: parseTokenStream(tokens, null),
       };
     } else {
       console.error("token", nextToken);
@@ -106,9 +108,9 @@ export function parseTokenStream(
       greaterBindingPower("*", lastOperator)
     ) {
       leftNode = {
-        leftNode: leftNode,
+        left: leftNode,
         operator: "*",
-        rightNode: parseTokenStream(tokens, "*"),
+        right: parseTokenStream(tokens, "*"),
       };
     } else if (
       (nextToken.type === TYPE.IDENTIFIER ||
@@ -116,9 +118,9 @@ export function parseTokenStream(
       greaterBindingPower("*", lastOperator)
     ) {
       leftNode = {
-        leftNode: leftNode,
+        left: leftNode,
         operator: "*",
-        rightNode: parseTokenStream(tokens, "*"),
+        right: parseTokenStream(tokens, "*"),
       };
     } else if (nextToken.type === TYPE.OPERATOR) {
       assert(typeof nextToken.value === "string");
@@ -126,9 +128,9 @@ export function parseTokenStream(
       if (greaterBindingPower(nextToken.value, lastOperator)) {
         tokens.consume();
         leftNode = {
-          leftNode: leftNode,
+          left: leftNode,
           operator: nextToken.value,
-          rightNode: parseTokenStream(tokens, nextToken.value),
+          right: parseTokenStream(tokens, nextToken.value),
         };
       } else {
         return leftNode;
@@ -141,6 +143,6 @@ export function parseTokenStream(
   throw new Error("too many iterations");
 }
 
-export function parse(expression: string): Node | number | string {
+export function parse(expression: string): Node {
   return parseTokenStream(new Stream(tokenize(expression)));
 }

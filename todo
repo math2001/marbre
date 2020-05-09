@@ -3,9 +3,6 @@
 - 1 2 should yield an error?
 - support float
 - error on unmatched brackets
-- rename Node interface
-- rename Node.leftNode
-- create an alias for Node | number | string
 - maybe support --1 = 1?
 - add name to table row for testing
 
@@ -18,3 +15,6 @@ DONE:
 - switch to typescript
 - queue should wrap around :^) Not useful but fun
 - tree to expression
+- rename Node interface
+- rename Node.leftNode
+- create an alias for Node | number | string
