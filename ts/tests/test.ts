@@ -2,7 +2,7 @@ import { objectEqual, assert } from "../utils.js";
 import { testParse } from "./test_parse.js";
 import { testTokenizer } from "./test_tokenizer.js";
 import { testQueue } from "./test_queue.js";
-import { testGetTermsFromTree } from "./test_equation.js";
+import { testGetTermsFromTree, testNegateTerm } from "./test_equation.js";
 
 export interface TableRow {
   arguments: any[];
@@ -15,6 +15,7 @@ export interface TableRow {
     testTokenizer,
     testQueue,
     testGetTermsFromTree,
+    testNegateTerm,
   ];
 
   let totalSuccesses = 0;

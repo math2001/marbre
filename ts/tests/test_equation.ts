@@ -1,5 +1,5 @@
 import { testTable, TableRow } from "./test.js";
-import { getTermsFromTree } from "../equation.js";
+import { getTermsFromTree, negateTerm } from "../equation.js";
 import { parse } from "../parser.js";
 
 export function testGetTermsFromTree() {
@@ -10,7 +10,7 @@ export function testGetTermsFromTree() {
         parse("a * (b + c)"),
         parse("- d"),
         parse("3 * e ^ pi"),
-        parse("-1 * 7"),
+        parse("-7"),
       ],
     },
     {
@@ -21,6 +21,24 @@ export function testGetTermsFromTree() {
       arguments: [parse("(a+b)+c")],
       output: ["a", "b", "c"],
     },
+    {
+      arguments: [parse("a - 2 * b * c + d")],
+      output: [parse("a"), parse("-2 * b * c"), parse("d")],
+    },
   ];
   return testTable(getTermsFromTree, table);
+}
+
+export function testNegateTerm() {
+  const table: TableRow[] = [
+    {
+      arguments: [parse("a * 2 * b * 3")],
+      output: parse("a * -2 * b * 3"),
+    },
+    {
+      arguments: [parse("a * b * c")],
+      output: parse("-(a * b * c)"),
+    },
+  ];
+  return testTable(negateTerm, table);
 }

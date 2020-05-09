@@ -48,7 +48,6 @@ function render(expression: string) {
   }
   elements.explicitExpression.textContent = explicitExpression;
 
-  console.log();
   console.log(JSON.stringify(getTermsFromTree(tree), null, 2));
 }
 

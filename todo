@@ -6,6 +6,8 @@
 - rename Node interface
 - rename Node.leftNode
 - create an alias for Node | number | string
+- maybe support --1 = 1?
+- add name to table row for testing
 
 DONE:
 
