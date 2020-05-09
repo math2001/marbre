@@ -3,3 +3,19 @@
   color: #f22;
   padding: 4px 8px;
 }
+
+body {
+  font-family: sans-serif;
+  font-size: 14px;
+}
+
+h1,
+h2,
+h3 {
+  font-size: inherit;
+  font-weight: 600;
+}
+
+pre {
+  font-size: initial;
+}
