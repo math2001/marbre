@@ -12,7 +12,7 @@ const bindingPowers: { [key: string]: number } = {
 
 const rightAssociative: string[] = ["^"];
 
-interface Node {
+export interface Node {
   leftNode: Node | number | string;
   rightNode: Node | number | string;
   operator: string;
