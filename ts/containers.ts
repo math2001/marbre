@@ -1,7 +1,11 @@
+// Queue system which grows dynammically, but only when it needs to (otherwise,
+// it just wraps around the underlying array buffer)
 export class Queue<T> {
   start: number;
   end: number;
   array: T[];
+
+  _empty: boolean;
 
   constructor(initialLength: number, initialElements: T[] = []) {
     if (initialLength <= initialElements.length) {
@@ -17,31 +21,63 @@ export class Queue<T> {
     }
     this.start = 0;
     this.end = initialElements.length;
+
+    this._empty = true;
   }
 
-  pushright(element: T) {
-    if (this.end >= this.array.length - 1) {
-      console.error("array length", this.array.length);
-      console.error("end", this.end);
-      throw new Error("queue wrapping not implemented");
+  public pushright(...elements: T[]) {
+    for (let element of elements) {
+      if (this.end === this.array.length) {
+        this.end = 0;
+      }
+
+      if (this.full()) {
+        this.extend();
+      }
+
+      this.array[this.end] = element;
+      this.end += 1;
+      this._empty = false;
     }
-
-    this.array[this.end] = element;
-    this.end += 1;
   }
 
-  popleft() {
+  public popleft() {
     if (this.empty()) {
       throw new Error("queue is empty");
     }
-    const object = this.array[this.start];
+    const element = this.array[this.start];
     delete this.array[this.start];
     this.start += 1;
-    return object;
+    if (this.start === this.end) {
+      this._empty = true;
+    }
+    return element;
   }
 
-  empty() {
-    return this.start === this.end;
+  public full() {
+    return (
+      !this._empty &&
+      this.start % this.array.length === this.end % this.array.length
+    );
+  }
+
+  public empty() {
+    return this._empty && this.start === this.end;
+  }
+
+  extend() {
+    // doubles the length of the queue, and moves every object that is wrapped around
+    // back to the end. For example, if we have added a b c d e f g to the queue
+    // and the underlying array is: f g a b c d e, then we would get
+    // . . a b c d e f g . . . . .
+
+    this.end = this.array.length;
+    this.array.length *= 2;
+    for (let i = 0; i < this.start; i++) {
+      this.array[this.end] = this.array[i];
+      delete this.array[i];
+      this.end++;
+    }
   }
 }
 
