@@ -11,10 +11,15 @@ export function assert(
 }
 
 export function objectEqual(a: any, b: any) {
+  if (typeof a !== typeof b) {
+    return false;
+  }
   if (
     typeof a === "string" ||
     typeof a === "number" ||
-    typeof a === "boolean"
+    typeof a === "boolean" ||
+    a === undefined ||
+    a === null
   ) {
     return a === b;
   }
