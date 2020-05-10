@@ -60,3 +60,17 @@ export function testNegateTerm() {
   ];
   return testTable(negateTerm, table);
 }
+
+export function testGetTreeFromTerm() {
+  const table: TableRow[] = [
+    {
+      arguments: [["a", "b", "c"]],
+      output: parse("a+b+c"),
+    },
+    {
+      arguments: [["a", -2, "c"]],
+      output: parse("a+(-2)+c"),
+    },
+  ];
+  return testTable(getTreeFromTerms, table);
+}

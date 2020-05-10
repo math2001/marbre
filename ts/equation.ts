@@ -155,10 +155,26 @@ export function negateTerm(node: Node): Node {
   return copy;
 }
 
-// // removes a child in place
-// export function removeChild(child: Node, parent: ParentNode) {
-//   if (objectEqual(parent.right, child)) {
-//     parent.left = child.left;
-//     parent.right = child.right;
-//   }
-// }
+export function getTreeFromTerms(terms: Node[]): Node {
+  if (terms.length === 0) {
+    return 0;
+  }
+  if (terms.length === 1) {
+    return terms[0];
+  }
+  let leftNode: ParentNode = {
+    left: terms[0],
+    operator: "+",
+    right: terms[1],
+  };
+
+  for (let i = 2; i < terms.length; i++) {
+    leftNode = {
+      left: leftNode,
+      operator: "+",
+      right: terms[i],
+    };
+  }
+
+  return leftNode;
+}
