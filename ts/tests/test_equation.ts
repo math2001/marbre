@@ -7,6 +7,7 @@ import {
   collectLikeTerms,
   expand,
   equal,
+  findAllIdentifiers,
 } from "../equation.js";
 import { parse } from "../parser.js";
 import { tree2expression } from "../tree2expression.js";
@@ -32,6 +33,12 @@ export function testEqual() {
     {
       arguments: [parse("a - d"), parse("-d + a")],
       output: true,
+    },
+export function testFindAllIdentifiers() {
+  return testTable(findAllIdentifiers, [
+    {
+      arguments: [parse("e ^ (pi i) a+c(b+c)")],
+      output: ["a", "b", "c", "e", "i", "pi"],
     },
   ]);
 }

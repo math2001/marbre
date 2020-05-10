@@ -10,6 +10,7 @@ import {
   testCollectLikeTerms,
   testExpand,
   testEqual,
+  testFindAllIdentifiers,
 } from "./test_equation.js";
 import { testObjectEqual } from "./test_utils.js";
 
@@ -31,6 +32,7 @@ export interface TableRow {
     testCollectLikeTerms,
     testExpand,
     testEqual,
+    testFindAllIdentifiers,
   ];
 
   let totalSuccesses = 0;

@@ -24,6 +24,28 @@ export function equal(a: Node, b: Node): boolean {
   return objectEqual(sortedTermsA.sort(), sortedTermsB.sort());
 }
 
+// returns a *sorted* array of all the identifiers
+export function findAllIdentifiers(root: Node): string[] {
+  const identifiers: Set<string> = new Set<string>();
+  const dfs = (node: Node) => {
+    if (typeof node === "number") {
+      return;
+    }
+
+    if (typeof node === "string") {
+      identifiers.add(node);
+      return;
+    }
+
+    assert(isParentNode(node));
+
+    dfs(node.left);
+    dfs(node.right);
+  };
+  dfs(root);
+  return Array.from(identifiers).sort();
+}
+
 export function expand(root: Node): Node {
   // for now, we just expand multiplications, not exponents
 
