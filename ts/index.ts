@@ -2,7 +2,7 @@ import { tokenize } from "./tokenizer.js";
 import { parse } from "./parser.js";
 import { assert } from "./utils.js";
 import { tree2expression } from "./tree2expression.js";
-import { getTermsFromTree } from "./equation.js";
+import { getTermsFromTree, expand } from "./equation.js";
 
 function render(expression: string) {
   const elements = {
@@ -10,17 +10,19 @@ function render(expression: string) {
     tokens: document.querySelector("#tokens"),
     tree: document.querySelector("#tree"),
     explicitExpression: document.querySelector("#explicit-expression"),
+    expandedExpression: document.querySelector("#expanded-expression"),
     // terms: document.querySelector("#terms")
   };
   assert(elements.expression instanceof HTMLInputElement);
   assert(elements.tokens instanceof HTMLElement);
   assert(elements.tree instanceof HTMLElement);
   assert(elements.explicitExpression instanceof HTMLElement);
+  assert(elements.expandedExpression instanceof HTMLElement);
   // assert(elements.terms instanceof HTMLElement)
 
   elements.expression.value = expression;
 
-  let tree, tokens, explicitExpression;
+  let tree, tokens, explicitExpression, expandedExpression;
   try {
     tokens = tokenize(expression);
   } catch (e) {
@@ -48,7 +50,18 @@ function render(expression: string) {
   }
   elements.explicitExpression.textContent = explicitExpression;
 
-  console.log(JSON.stringify(getTermsFromTree(tree), null, 2));
+  try {
+    expandedExpression = expand(tree);
+  } catch (e) {
+    elements.expandedExpression.innerHTML = `<span class="error">${e}</span>`;
+    console.error(e);
+    return;
+  }
+  elements.expandedExpression.textContent = `${tree2expression(
+    expandedExpression
+  )}\n\n${getTermsFromTree(expandedExpression)
+    .map((term) => tree2expression(term))
+    .join(" + ")}`;
 }
 
 function main() {
