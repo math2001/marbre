@@ -160,3 +160,7 @@ export function isParentNode(node: Node): node is ParentNode {
     "operator" in node
   );
 }
+
+export function isLeaf(node: Node): node is Leaf {
+  return typeof node === "number" || typeof node === "string";
+}
