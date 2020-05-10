@@ -72,6 +72,10 @@ export function testParse() {
       arguments: ["-(a+b)"],
       output: parse("(-1)*(a+b)"),
     },
+    {
+      arguments: ["(a+b) x"],
+      output: parse("(a+b)*x"),
+    },
   ];
   return testTable(parse, table);
 }
