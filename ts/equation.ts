@@ -66,11 +66,18 @@ export function getMultiple(root: Node, targetTerm: string): Node {
   //     throw new Error("not implemented: depends on fraction");
   //   }
   // }
+  if (root.operator === "^") {
+    throw new Error("support for exponents not implemented");
+  }
+
   assert(root.operator === "*" || root.operator === "/");
 
   let foundTerm = false;
   const bfs = (parent: ParentNode, direction: childKey) => {
     if (foundTerm) return;
+    if (parent.operator === "^") {
+      throw new Error("support for exponents not implemented");
+    }
 
     assert(parent.operator === "*" || parent.operator === "/");
     const child = parent[direction];

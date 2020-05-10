@@ -31,6 +31,16 @@ export function testGetMultiple() {
       arguments: [parse("(a b x) * (c d x)"), "x"],
       output: parse("(a b) * (c d x)"),
     },
+
+    // TODO: support exponnents
+    // {
+    //   arguments: [parse("a^x"), "x"],
+    //   output: 0,
+    // },
+    // {
+    //   arguments: [parse("a^b"), "x"],
+    //   output: 0,
+    // },
   ];
   return testTable(getMultiple, table, tree2expression);
 }
@@ -105,11 +115,16 @@ export function testCollectLikeTerms() {
       arguments: [parse("b d + a x"), "x"],
       output: parse("a x + b d"),
     },
-    // FIXME: there's a bug in parse
+
+    // TODO: depends on getMultiple exponents support
     // {
-    //   arguments: [parse("-x + a x + c1 + b x + c2d * c2 + x - c3^2"), "x"],
-    //   output: parse("(-1 + a + b + 1) x + c1 + c2d * c2 + (-c3^2)"),
+    //   arguments: [parse("c^x + e + a x"), "x"],
+    //   output: parse("a x + c^x + e"),
     // },
+    // {
+    //   arguments: [parse("c x + e x ^ 2"), "x"]
+    //   output: parse("(c + x) x")
+    // }
   ];
   return testTable(collectLikeTerms, table, tree2expression);
 }
