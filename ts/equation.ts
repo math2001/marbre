@@ -8,6 +8,41 @@ enum childKey {
   right = "right",
 }
 
+export function expand(root: Node): Node {
+  // for now, we just expand multiplications, not exponents
+
+  const dfs = (node: Node): Node[] => {
+    // dfs returns the list of expanded terms in a product or in a sum
+    if (typeof node === "string" || typeof node === "number") {
+      return [node];
+    } else if (node.operator === "+" || node.operator === "-") {
+      return [...dfs(node.left), ...dfs(node.right)];
+    } else if (node.operator === "*" || node.operator === "/") {
+      const leftTerms = dfs(node.left);
+      const rightTerms = dfs(node.right);
+      const terms: ParentNode[] = [];
+
+      // multiply every term in LHS with each term on RHS
+      for (let leftTerm of leftTerms) {
+        for (let rightTerm of rightTerms) {
+          terms.push({
+            left: leftTerm,
+            operator: node.operator,
+            right: rightTerm,
+          });
+        }
+      }
+
+      return terms;
+    } else if (node.operator === "^") {
+      throw new Error("exponenents not supported yet");
+    } else {
+      throw new Error(`unknown operator ${node.operator}`);
+    }
+  };
+  return getTreeFromTerms(dfs(root));
+}
+
 export function collectLikeTerms(root: Node, targetTerm: string): Node {
   if (typeof root === "number" || typeof root === "string") {
     return root;

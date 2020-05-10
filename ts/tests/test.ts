@@ -8,6 +8,7 @@ import {
   testGetMultiple,
   testGetTreeFromTerm,
   testCollectLikeTerms,
+  testExpand,
 } from "./test_equation.js";
 import { testObjectEqual } from "./test_utils.js";
 
@@ -27,6 +28,7 @@ export interface TableRow {
     testGetMultiple,
     testGetTreeFromTerm,
     testCollectLikeTerms,
+    testExpand,
   ];
 
   let totalSuccesses = 0;

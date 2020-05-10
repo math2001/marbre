@@ -5,9 +5,35 @@ import {
   getMultiple,
   getTreeFromTerms,
   collectLikeTerms,
+  expand,
 } from "../equation.js";
 import { parse } from "../parser.js";
 import { tree2expression } from "../tree2expression.js";
+
+export function testExpand() {
+  return testTable(
+    expand,
+    [
+      {
+        arguments: [parse("(a + b)(c + d)")],
+        output: parse("a c + a d + b c + b d"),
+      },
+      {
+        arguments: [parse("a (b + c + d) + e (f + g)")],
+        output: parse("a b + a c + a d + e f + e g"),
+      },
+      {
+        arguments: [parse("a (b + c / d + e f)")],
+        output: parse("a b + a (c / d) + a (e f)"),
+      },
+      {
+        arguments: [parse("(a + b (c + d))(e + f)")],
+        output: parse("a e + a f + (b c) e + (b c) f + (b d) e + (b d) f"),
+      },
+    ],
+    tree2expression
+  );
+}
 
 export function testGetMultiple() {
   const table: TableRow[] = [
