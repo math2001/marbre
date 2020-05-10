@@ -1,6 +1,13 @@
 import { testTable, TableRow } from "./test.js";
-import { getTermsFromTree, negateTerm, getMultiple } from "../equation.js";
+import {
+  getTermsFromTree,
+  negateTerm,
+  getMultiple,
+  getTreeFromTerms,
+  collectLikeTerms,
+} from "../equation.js";
 import { parse } from "../parser.js";
+import { tree2expression } from "../tree2expression.js";
 
 export function testGetMultiple() {
   const table: TableRow[] = [
@@ -16,8 +23,16 @@ export function testGetMultiple() {
       arguments: [parse("2*a*x*x*b"), "x"],
       output: parse("2*a*x*b"),
     },
+    {
+      arguments: [parse("a b c"), "x"],
+      output: 0,
+    },
+    {
+      arguments: [parse("(a b x) * (c d x)"), "x"],
+      output: parse("(a b) * (c d x)"),
+    },
   ];
-  return testTable(getMultiple, table);
+  return testTable(getMultiple, table, tree2expression);
 }
 
 export function testGetTermsFromTree() {
@@ -73,4 +88,28 @@ export function testGetTreeFromTerm() {
     },
   ];
   return testTable(getTreeFromTerms, table);
+}
+
+export function testCollectLikeTerms() {
+  const table: TableRow[] = [
+    // idea: -1, -3, 1*, -
+    {
+      arguments: [parse("-x + a x + c1 + b x + c2"), "x"],
+      output: parse("(-1 + a + b) x + c1 + c2"),
+    },
+    {
+      arguments: [parse("a x + b d"), "x"],
+      output: parse("(a) x + b d"),
+    },
+    {
+      arguments: [parse("b d + a x"), "x"],
+      output: parse("a x + b d"),
+    },
+    // FIXME: there's a bug in parse
+    // {
+    //   arguments: [parse("-x + a x + c1 + b x + c2d * c2 + x - c3^2"), "x"],
+    //   output: parse("(-1 + a + b + 1) x + c1 + c2d * c2 + (-c3^2)"),
+    // },
+  ];
+  return testTable(collectLikeTerms, table, tree2expression);
 }

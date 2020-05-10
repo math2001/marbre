@@ -6,6 +6,8 @@ import {
   testGetTermsFromTree,
   testNegateTerm,
   testGetMultiple,
+  testGetTreeFromTerm,
+  testCollectLikeTerms,
 } from "./test_equation.js";
 import { testObjectEqual } from "./test_utils.js";
 
@@ -23,6 +25,8 @@ export interface TableRow {
     testGetTermsFromTree,
     testNegateTerm,
     testGetMultiple,
+    testGetTreeFromTerm,
+    testCollectLikeTerms,
   ];
 
   let totalSuccesses = 0;

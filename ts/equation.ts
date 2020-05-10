@@ -1,12 +1,14 @@
-import { assert, objectEqual } from "./utils.js";
+import { assert, objectEqual, pprint } from "./utils.js";
 import { ParentNode, Node, Leaf, isParentNode } from "./parser.js";
+import { testGetTreeFromTerm } from "./tests/test_equation.js";
+import { tree2expression } from "./tree2expression.js";
 
 enum childKey {
   left = "left",
   right = "right",
 }
 
-export function collectLikeTerms(root: Node, targetTerm: Node): Node {
+export function collectLikeTerms(root: Node, targetTerm: string): Node {
   if (typeof root === "number" || typeof root === "string") {
     return root;
   }
@@ -18,14 +20,34 @@ export function collectLikeTerms(root: Node, targetTerm: Node): Node {
   //   otherwise
   //      add the whole term to the leftover list
   // return sum(x * sum(collections list), ...leftovers)
+  const leftovers: Node[] = [];
+  const coefficients: Node[] = [];
+  for (let term of getTermsFromTree(root)) {
+    const multiple = getMultiple(term, targetTerm);
+    if (multiple === 0) {
+      leftovers.push(term);
+    } else {
+      coefficients.push(multiple);
+    }
+  }
 
-  return copy;
+  return getTreeFromTerms([
+    {
+      left: getTreeFromTerms(coefficients),
+      operator: "*",
+      right: targetTerm,
+    },
+    ...leftovers,
+  ]);
 }
 
 // getMultiple(parse('a*b*x'), x) -> a*b
 // very basic, it only works for string target terms (one variable)
 // and doesn't support powers yet
+// FIXME: actually returns wrong result if expression divides by target term
 export function getMultiple(root: Node, targetTerm: string): Node {
+  assert(targetTerm !== undefined, "target term is undefined");
+
   if (typeof root === "string") {
     if (root === targetTerm) {
       return 1;
@@ -44,15 +66,21 @@ export function getMultiple(root: Node, targetTerm: string): Node {
   //     throw new Error("not implemented: depends on fraction");
   //   }
   // }
-  assert(root.operator === "*");
+  assert(root.operator === "*" || root.operator === "/");
 
+  let foundTerm = false;
   const bfs = (parent: ParentNode, direction: childKey) => {
+    if (foundTerm) return;
+
+    assert(parent.operator === "*" || parent.operator === "/");
     const child = parent[direction];
     assert(isParentNode(child));
 
     if (child.left === targetTerm) {
+      foundTerm = true;
       parent[direction] = child.right;
     } else if (child.right === targetTerm) {
+      foundTerm = true;
       parent[direction] = child.left;
     } else {
       if (isParentNode(child.left)) bfs(child, childKey.left);
@@ -70,7 +98,10 @@ export function getMultiple(root: Node, targetTerm: string): Node {
   if (isParentNode(copy.left)) bfs(copy, childKey.left);
   if (isParentNode(copy.right)) bfs(copy, childKey.right);
 
+  if (!foundTerm) return 0;
+
   assert(!objectEqual(copy, root));
+
   return copy;
 }
 
