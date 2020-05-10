@@ -146,3 +146,13 @@ export function parseTokenStream(
 export function parse(expression: string): Node {
   return parseTokenStream(new Stream(tokenize(expression)));
 }
+
+export function isParentNode(node: Node): node is ParentNode {
+  return (
+    typeof node !== "number" &&
+    typeof node !== "string" &&
+    "left" in node &&
+    "right" in node &&
+    "operator" in node
+  );
+}

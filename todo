@@ -1,7 +1,8 @@
+- tree equal (different than object equal)
 - collect terms is buggy (a+b+b) gives a(1+1+1)
 - render tree
 - 1 2 should yield an error?
-- support float
+- support float (fractions?)
 - error on unmatched brackets
 - maybe support --1 = 1?
 - add name to table row for testing

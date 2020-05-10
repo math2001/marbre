@@ -1,6 +1,24 @@
 import { testTable, TableRow } from "./test.js";
-import { getTermsFromTree, negateTerm } from "../equation.js";
+import { getTermsFromTree, negateTerm, getMultiple } from "../equation.js";
 import { parse } from "../parser.js";
+
+export function testGetMultiple() {
+  const table: TableRow[] = [
+    {
+      arguments: [parse("2*a*x*b"), "x"],
+      output: parse("2*a*b"),
+    },
+    {
+      arguments: [parse("2*a*x*b*x"), "x"],
+      output: parse("2*a*x*b"),
+    },
+    {
+      arguments: [parse("2*a*x*x*b"), "x"],
+      output: parse("2*a*x*b"),
+    },
+  ];
+  return testTable(getMultiple, table);
+}
 
 export function testGetTermsFromTree() {
   const table: TableRow[] = [
