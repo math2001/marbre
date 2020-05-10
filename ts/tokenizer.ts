@@ -1,4 +1,5 @@
-import { assert } from "./utils";
+import { assert } from "./utils.js";
+import { Stream, StringStream } from "./containers.js";
 
 const asciiLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 const digits = "1234567890";
@@ -10,6 +11,8 @@ export enum TYPE {
 
   OPEN_BRACKET = "open_bracket",
   CLOSED_BRACKET = "closed_bracket",
+
+  COMPARATOR = "comparator", // =, <=, >=, >, <
 }
 
 export interface Token {
@@ -18,92 +21,81 @@ export interface Token {
   value: number | string;
 }
 
-export function tokenize(expression: string) {
+export function tokenizeExpressionStream(chars: StringStream): Token[] {
   const tokens: Token[] = [];
-  let currentToken: {
-    type: TYPE;
-    value: string;
-  } | null = null;
+  let i = 0;
+  let char: string | null;
 
-  // add a space to add the final currentToken if there is one.
-  for (let char of expression + " ") {
-    if (currentToken === null) {
-      if (digits.includes(char)) {
-        currentToken = {
-          type: TYPE.LITERAL_NUMBER,
-          value: char,
-        };
-        continue;
-      } else if (asciiLetters.includes(char)) {
-        currentToken = {
-          type: TYPE.IDENTIFIER,
-          value: char,
-        };
-        continue;
-      }
-    } else if (asciiLetters.includes(char)) {
-      if (currentToken.type === TYPE.IDENTIFIER) {
-        currentToken.value += char;
-      } else if (currentToken.type === TYPE.LITERAL_NUMBER) {
-        // we are a case like 3alpha and we want 3 "alpha"
-        tokens.push({
-          type: TYPE.LITERAL_NUMBER,
-          value: parseInt(currentToken.value),
-        });
-        currentToken = {
-          type: TYPE.IDENTIFIER,
-          value: char,
-        };
-      } else {
-        console.error(currentToken);
-        throw new Error(`ascii letters not allowed in ${currentToken.type}`);
-      }
-      continue;
-    } else if (digits.includes(char)) {
-      if (
-        currentToken.type === TYPE.LITERAL_NUMBER ||
-        currentToken.type === TYPE.IDENTIFIER
-      ) {
-        currentToken.value += char;
-      } else {
-        console.error(currentToken);
-        throw new Error(`digits not allowed in ${currentToken.type}`);
-      }
-      continue;
-    } else {
-      // it's another type of character (ie the current token is finished)
-      // so we add the current token to the list
-      if (currentToken.type === TYPE.LITERAL_NUMBER) {
-        tokens.push({
-          type: TYPE.LITERAL_NUMBER,
-          value: parseInt(currentToken.value),
-        });
-      } else {
-        tokens.push(currentToken);
-      }
-      currentToken = null;
+  while (i < 1e6) {
+    i++;
+    char = chars.consume();
+    if (char === null) {
+      return tokens;
     }
 
-    if (" ".includes(char)) {
-      // ignore
-    } else if ("+-*/^".includes(char)) {
+    if (digits.includes(char)) {
+      // TODO: support floats
       tokens.push({
-        value: char,
-        type: TYPE.OPERATOR,
+        type: TYPE.LITERAL_NUMBER,
+        value: parseInt(consumeAllowedCharacters(chars, char, digits)),
       });
-    } else if (char === ")") {
+    } else if (asciiLetters.includes(char)) {
       tokens.push({
-        value: char,
-        type: TYPE.CLOSED_BRACKET,
+        type: TYPE.IDENTIFIER,
+        value: consumeAllowedCharacters(chars, char, digits + asciiLetters),
+      });
+    } else if ("><=".includes(char)) {
+      tokens.push({
+        type: TYPE.COMPARATOR,
+        value: consumeAllowedCharacters(chars, char, "><="),
       });
     } else if (char === "(") {
-      tokens.push({
-        value: "(",
-        type: TYPE.OPEN_BRACKET,
-      });
-    } else {
-      throw new Error(`'${char}' not allowed anywhere in an expression`);
+      tokens.push({ type: TYPE.OPEN_BRACKET, value: char });
+    } else if (char === ")") {
+      tokens.push({ type: TYPE.CLOSED_BRACKET, value: char });
+    } else if ("*+-/^".includes(char)) {
+      tokens.push({ type: TYPE.OPERATOR, value: char });
     }
   }
-  return tokens;
+
+  throw new Error("too many loops");
+}
+
+export function tokenize(expression: string): Token[] {
+  return tokenizeExpressionStream(new StringStream(expression));
+}
+
+function consumeAllowedCharacters(
+  chars: StringStream,
+  firstChar: string,
+  allowedCharacters: string
+): string {
+  assert(
+    firstChar.length === 1,
+    `first char '${firstChar}' should have length 1`
+  );
+
+  let i = 0;
+  let token: string[] = [firstChar];
+  let next: string | null;
+
+  while (i < 1000) {
+    i++;
+    next = chars.peek();
+
+    if (next === null) {
+      return token.join("");
+    }
+
+    if (allowedCharacters.includes(next)) {
+      chars.consume();
+      token.push(next);
+    } else {
+      return token.join("");
+    }
+  }
+
+  throw new Error(
+    `token length expected to be less than 1000 digits long (allowed characters: ${allowedCharacters})`
+  );
 }

@@ -1,5 +1,4 @@
 - tree equal (different than object equal)
-- collect terms is buggy (a+b+b) gives a(1+1+1)
 - render tree
 - 1 2 should yield an error?
 - support float (fractions?)
@@ -18,4 +17,5 @@ DONE:
 - tree to expression
 - rename Node interface
 - rename Node.leftNode
+- collect terms is buggy (a+b+b) gives a(1+1+1)
 - create an alias for Node | number | string
