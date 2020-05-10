@@ -30,6 +30,18 @@ export function testExpand() {
         arguments: [parse("(a + b (c + d))(e + f)")],
         output: parse("a e + a f + (b c) e + (b c) f + (b d) e + (b d) f"),
       },
+      {
+        arguments: [parse("(a + b)(a - b + c)")],
+        output: parse("a a + a (-b) + a c + b a + b (-b) + b c"),
+      },
+      {
+        arguments: [parse("(a + b) / 2 * (c - 2)")],
+        output: parse("a / 2 * c + a / 2 * (-2) + b / 2 * c + b / 2 * (-2)"),
+      },
+      {
+        arguments: [parse("a (b - (c + d))")],
+        output: parse("a b + a (-c) + a (-d)"),
+      },
     ],
     tree2expression
   );

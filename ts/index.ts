@@ -65,7 +65,7 @@ function render(expression: string) {
 }
 
 function main() {
-  render("3(a+b)+3");
+  render("(a+b)(a-b)");
   // @ts-ignore
   document.querySelector("#expression").addEventListener("input", (e) => {
     // @ts-ignore

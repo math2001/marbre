@@ -15,8 +15,10 @@ export function expand(root: Node): Node {
     // dfs returns the list of expanded terms in a product or in a sum
     if (typeof node === "string" || typeof node === "number") {
       return [node];
-    } else if (node.operator === "+" || node.operator === "-") {
+    } else if (node.operator === "+") {
       return [...dfs(node.left), ...dfs(node.right)];
+    } else if (node.operator === "-") {
+      return [...dfs(node.left), ...dfs(negateTerm(node.right))];
     } else if (node.operator === "*" || node.operator === "/") {
       const leftTerms = dfs(node.left);
       const rightTerms = dfs(node.right);
