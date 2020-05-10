@@ -51,9 +51,9 @@ export interface TableRow {
     for (let report of totalErrors) {
       console.group(report.name);
       for (let error of report.values) {
-        console.error("arguments", error.arguments);
-        console.error("actual output", error.actualOutput);
-        console.error("expected output", error.expectedOutput);
+        console.error("arguments:", error.arguments);
+        console.error("actual output  :", error.actualOutput);
+        console.error("expected output:", error.expectedOutput);
       }
       console.groupEnd();
     }
@@ -72,7 +72,11 @@ export interface TableRow {
   }
 })();
 
-export function testTable(func: (...args: any[]) => any, table: TableRow[]) {
+export function testTable(
+  func: (...args: any[]) => any,
+  table: TableRow[],
+  formatter?: (obj: any) => any
+) {
   let numberSuccess = 0;
   let errors = [];
   let failures = [];
@@ -92,8 +96,8 @@ export function testTable(func: (...args: any[]) => any, table: TableRow[]) {
     } else {
       errors.push({
         arguments: row.arguments,
-        expectedOutput: row.output,
-        actualOutput: output,
+        expectedOutput: formatter ? formatter(row.output) : row.output,
+        actualOutput: formatter ? formatter(output) : output,
       });
     }
   }
