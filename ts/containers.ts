@@ -82,18 +82,16 @@ export class Queue<T> {
 }
 
 export class Stream<T> {
-  items: T[];
+  items: readonly T[];
   index: number;
-  length: number;
 
   constructor(items: T[]) {
     this.items = items;
     this.index = 0;
-    this.length = this.items.length;
   }
 
   consume() {
-    if (this.index + 1 > this.length) {
+    if (this.index + 1 > this.length()) {
       return null;
     }
     this.index += 1;
@@ -101,13 +99,42 @@ export class Stream<T> {
   }
 
   peek() {
-    if (this.index + 1 > this.length) {
+    if (this.index + 1 > this.length()) {
       return null;
     }
     return this.items[this.index];
   }
 
-  preview() {
-    return this.items.slice(this.index, this.length);
+  length() {
+    return this.items.length;
+  }
+}
+
+export class StringStream {
+  items: string;
+  index: number;
+
+  constructor(items: string) {
+    this.items = items;
+    this.index = 0;
+  }
+
+  consume(): string | null {
+    if (this.index + 1 > this.length()) {
+      return null;
+    }
+    this.index += 1;
+    return this.items[this.index - 1];
+  }
+
+  peek(): string | null {
+    if (this.index + 1 > this.length()) {
+      return null;
+    }
+    return this.items[this.index];
+  }
+
+  length(): number {
+    return this.items.length;
   }
 }
