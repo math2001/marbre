@@ -43,3 +43,7 @@ export function objectEqual(a: any, b: any) {
   }
   return true;
 }
+
+export function pprint(object: any): string {
+  return JSON.stringify(object, null, 2);
+}
