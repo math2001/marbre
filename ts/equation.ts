@@ -8,6 +8,22 @@ enum childKey {
   right = "right",
 }
 
+export function equal(a: Node, b: Node): boolean {
+  const termsA = getTermsFromTree(expand(a), "+");
+  const termsB = getTermsFromTree(expand(b), "+");
+
+  const sortedTermsA: Node[][] = new Array(termsA.length);
+  for (let i in termsA) {
+    sortedTermsA[i] = getTermsFromTree(termsA[i], "*").sort();
+  }
+  const sortedTermsB: Node[][] = new Array(termsB.length);
+  for (let i in termsA) {
+    sortedTermsB[i] = getTermsFromTree(termsB[i], "*").sort();
+  }
+
+  return objectEqual(sortedTermsA.sort(), sortedTermsB.sort());
+}
+
 export function expand(root: Node): Node {
   // for now, we just expand multiplications, not exponents
 
@@ -168,21 +184,21 @@ export function getTermsFromTree(tree: Node, targetOperator: string): Node[] {
 
     if (targetOperator === "+") {
       if (node.operator === "+") {
-      collect(node.left);
-      collect(node.right);
-    } else if (node.operator === "-") {
-      collect(node.left);
-      collect(negateTerm(node.right));
-    } else if (
-      node.operator === "*" ||
-      node.operator === "^" ||
-      node.operator === "/"
-    ) {
-      terms.push(node);
-    } else {
-      console.error("node", node);
-      throw new Error("unexpected node operator");
-    }
+        collect(node.left);
+        collect(node.right);
+      } else if (node.operator === "-") {
+        collect(node.left);
+        collect(negateTerm(node.right));
+      } else if (
+        node.operator === "*" ||
+        node.operator === "^" ||
+        node.operator === "/"
+      ) {
+        terms.push(node);
+      } else {
+        console.error("node", node);
+        throw new Error("unexpected node operator");
+      }
     } else if (targetOperator === "*") {
       assert(
         node.operator !== "+" && node.operator !== "-",

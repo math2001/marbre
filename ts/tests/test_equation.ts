@@ -6,9 +6,35 @@ import {
   getTreeFromTerms,
   collectLikeTerms,
   expand,
+  equal,
 } from "../equation.js";
 import { parse } from "../parser.js";
 import { tree2expression } from "../tree2expression.js";
+
+export function testEqual() {
+  return testTable(equal, [
+    {
+      arguments: [parse("a b"), parse("b a")],
+      output: true,
+    },
+    {
+      arguments: [parse("a b c"), parse("c b a")],
+      output: true,
+    },
+    {
+      arguments: [parse("(a b) c"), parse("a (b c)")],
+      output: true,
+    },
+    {
+      arguments: [parse("(a + b)(c + d)"), parse("a c + a d + b c + b d")],
+      output: true,
+    },
+    {
+      arguments: [parse("a - d"), parse("-d + a")],
+      output: true,
+    },
+  ]);
+}
 
 export function testExpand() {
   return testTable(

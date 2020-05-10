@@ -59,7 +59,7 @@ function render(expression: string) {
   }
   elements.expandedExpression.textContent = `${tree2expression(
     expandedExpression
-  )}\n\n${getTermsFromTree(expandedExpression)
+  )}\n\n${getTermsFromTree(expandedExpression, "+")
     .map((term) => tree2expression(term))
     .join(" + ")}`;
 }
