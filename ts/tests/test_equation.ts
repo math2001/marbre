@@ -8,6 +8,8 @@ import {
   expand,
   equal,
   findAllIdentifiers,
+  evalLiteralNumberInSimpleExpression,
+  SimpleExpressionKind,
 } from "../equation.js";
 import { parse } from "../parser.js";
 import { tree2expression } from "../tree2expression.js";
@@ -34,6 +36,32 @@ export function testEqual() {
       arguments: [parse("a - d"), parse("-d + a")],
       output: true,
     },
+export function testEvalLiteralNumberInSimpleExpression() {
+  return testTable(evalLiteralNumberInSimpleExpression, [
+    {
+      arguments: [
+        getTermsFromTree(parse("2 a 3 4 e"), "*"),
+        SimpleExpressionKind.product,
+      ],
+      output: [24, "a", "e"],
+    },
+    {
+      arguments: [
+        getTermsFromTree(parse("2 + a + 3 + 4  + e"), "+"),
+        SimpleExpressionKind.sum,
+      ],
+      output: [9, "a", "e"],
+    },
+    {
+      arguments: [
+        getTermsFromTree(parse("1 + 2a + 3a + 4 "), "+"),
+        SimpleExpressionKind.sum,
+      ],
+      output: [5, parse("2a"), parse("3a")],
+    },
+  ]);
+}
+
 export function testFindAllIdentifiers() {
   return testTable(findAllIdentifiers, [
     {

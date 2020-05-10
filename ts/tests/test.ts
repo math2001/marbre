@@ -11,6 +11,7 @@ import {
   testExpand,
   testEqual,
   testFindAllIdentifiers,
+  testEvalLiteralNumberInSimpleExpression,
 } from "./test_equation.js";
 import { testObjectEqual } from "./test_utils.js";
 
@@ -33,6 +34,7 @@ export interface TableRow {
     testExpand,
     testEqual,
     testFindAllIdentifiers,
+    testEvalLiteralNumberInSimpleExpression,
   ];
 
   let totalSuccesses = 0;

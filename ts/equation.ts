@@ -8,6 +8,11 @@ enum childKey {
   right = "right",
 }
 
+export enum SimpleExpressionKind {
+  product = "product",
+  sum = "sum",
+}
+
 export function equal(a: Node, b: Node): boolean {
   const termsA = getTermsFromTree(expand(a), "+");
   const termsB = getTermsFromTree(expand(b), "+");
@@ -22,6 +27,38 @@ export function equal(a: Node, b: Node): boolean {
   }
 
   return objectEqual(sortedTermsA.sort(), sortedTermsB.sort());
+}
+
+// adds/multiplies the naked literal number (not multiplied by an identifier)
+export function evalLiteralNumberInSimpleExpression(
+  terms: Leaf[],
+  sek: SimpleExpressionKind
+): Leaf[] {
+  let coefficient: number = 0;
+  const identifiers: string[] = [];
+
+  if (sek === SimpleExpressionKind.product) {
+    coefficient = 1;
+  } else {
+    assert(sek === SimpleExpressionKind.sum);
+  }
+
+  for (let term of terms) {
+    if (typeof term === "number") {
+      if (sek === SimpleExpressionKind.product) coefficient *= term;
+      else coefficient += term;
+    } else {
+      identifiers.push(term);
+    }
+  }
+
+  if (coefficient === 0) {
+    if (sek === SimpleExpressionKind.product) {
+      return [];
+    }
+    return identifiers;
+  }
+  return [coefficient, ...identifiers];
 }
 
 // returns a *sorted* array of all the identifiers
