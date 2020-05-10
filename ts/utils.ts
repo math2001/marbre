@@ -3,10 +3,7 @@ export function assert(
   message?: string
 ): asserts condition {
   if (!condition) {
-    if (message) {
-      console.error(message);
-    }
-    throw new Error("assertion error");
+    throw new Error("assertion error: " + message !== "" ? message : "");
   }
 }
 
