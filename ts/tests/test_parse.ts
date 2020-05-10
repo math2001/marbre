@@ -1,5 +1,6 @@
 import { testTable } from "./test.js";
 import { parse } from "../parser.js";
+import { tree2expression } from "../tree2expression.js";
 
 export function testParse() {
   // just make sure it doesn't run with errors
@@ -76,6 +77,18 @@ export function testParse() {
       arguments: ["(a+b) x"],
       output: parse("(a+b)*x"),
     },
+    {
+      arguments: ["-a^2"],
+      output: parse("-(a^2)"),
+    },
+    {
+      arguments: ["-2^2"],
+      output: parse("-(2^2)"),
+    },
+    {
+      arguments: ["-(a+b)^2"],
+      output: parse("-((a+b)^2)"),
+    },
   ];
-  return testTable(parse, table);
+  return testTable(parse, table, tree2expression);
 }

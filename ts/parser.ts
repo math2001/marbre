@@ -67,16 +67,20 @@ export function parseTokenStream(
       throw new Error("end of expression after -");
     }
 
-    if (nextToken.type === TYPE.LITERAL_NUMBER) {
-      leftNode = -nextToken.value;
-      tokens.consume();
-    } else if (nextToken.type === TYPE.IDENTIFIER) {
-      leftNode = {
-        left: -1,
-        operator: "*",
-        right: nextToken.value,
-      };
-      tokens.consume();
+    if (
+      nextToken.type === TYPE.LITERAL_NUMBER ||
+      nextToken.type === TYPE.IDENTIFIER
+    ) {
+      let right = parseTokenStream(tokens, "*");
+      if (typeof right === "number") {
+        leftNode = -right;
+      } else {
+        leftNode = {
+          left: -1,
+          operator: "*",
+          right: right,
+        };
+      }
     } else if (nextToken.type === TYPE.OPEN_BRACKET) {
       // make sure that we don't consume here, because the following parse call needs
       // the opening bracket

@@ -19,9 +19,9 @@ export interface TableRow {
 (function () {
   const testFunctions = [
     testObjectEqual,
-    testParse,
-    testTokenizer,
     testQueue,
+    testTokenizer,
+    testParse,
     testGetTermsFromTree,
     testNegateTerm,
     testGetMultiple,
