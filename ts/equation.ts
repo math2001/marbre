@@ -1,5 +1,5 @@
 import { assert, objectEqual, pprint } from "./utils.js";
-import { ParentNode, Node, Leaf, isParentNode } from "./parser.js";
+import { ParentNode, Node, Leaf, isParentNode, isLeaf } from "./parser.js";
 import { testGetTreeFromTerm } from "./tests/test_equation.js";
 import { tree2expression } from "./tree2expression.js";
 
@@ -14,16 +14,33 @@ export enum SimpleExpressionKind {
 }
 
 export function equal(a: Node, b: Node): boolean {
-  const termsA = getTermsFromTree(expand(a), "+");
-  const termsB = getTermsFromTree(expand(b), "+");
+  const termsA = getTermsFromTree(expand(a), SimpleExpressionKind.sum);
+  const termsB = getTermsFromTree(expand(b), SimpleExpressionKind.sum);
 
+  // FIXME: implement my own sort. Every element should be sorted the same way
+  // every time. Here the sort only does it's job well because we aren't sorting
+  // any nodes (only string and integers). Also, .sort() does *in-place* sort.
   const sortedTermsA: Node[][] = new Array(termsA.length);
   for (let i in termsA) {
-    sortedTermsA[i] = getTermsFromTree(termsA[i], "*").sort();
+    sortedTermsA[i] = getTermsFromTree(
+      termsA[i],
+      SimpleExpressionKind.product
+    ).sort();
+
+    for (let term of sortedTermsA[i]) {
+      assert(isLeaf(term));
+    }
   }
   const sortedTermsB: Node[][] = new Array(termsB.length);
   for (let i in termsA) {
-    sortedTermsB[i] = getTermsFromTree(termsB[i], "*").sort();
+    sortedTermsB[i] = getTermsFromTree(
+      termsB[i],
+      SimpleExpressionKind.product
+    ).sort();
+
+    for (let term of sortedTermsB[i]) {
+      assert(isLeaf(term));
+    }
   }
 
   return objectEqual(sortedTermsA.sort(), sortedTermsB.sort());
@@ -134,7 +151,7 @@ export function collectLikeTerms(root: Node, targetTerm: string): Node {
   // return sum(x * sum(collections list), ...leftovers)
   const leftovers: Node[] = [];
   const coefficients: Node[] = [];
-  for (let term of getTermsFromTree(root, "+")) {
+  for (let term of getTermsFromTree(root, SimpleExpressionKind.sum)) {
     const multiple = getMultiple(term, targetTerm);
     if (multiple === 0) {
       leftovers.push(term);
@@ -224,15 +241,10 @@ export function getMultiple(root: Node, targetTerm: string): Node {
   return copy;
 }
 
-export function getTermsFromTree(tree: Node, targetOperator: string): Node[] {
-  if (targetOperator === "-") {
-    throw new Error("use +, not -");
-  } else if (targetOperator === "/") {
-    throw new Error("use *, not /");
-  }
-  if (targetOperator !== "+" && targetOperator !== "*") {
-    throw new Error(`invalid target operator: ${targetOperator}`);
-  }
+export function getTermsFromTree(
+  tree: Node,
+  sek: SimpleExpressionKind
+): Node[] {
   const terms: Node[] = [];
 
   const collect = (node: Node) => {
@@ -241,7 +253,7 @@ export function getTermsFromTree(tree: Node, targetOperator: string): Node[] {
       return;
     }
 
-    if (targetOperator === "+") {
+    if (sek === SimpleExpressionKind.sum) {
       if (node.operator === "+") {
         collect(node.left);
         collect(node.right);
@@ -258,7 +270,7 @@ export function getTermsFromTree(tree: Node, targetOperator: string): Node[] {
         console.error("node", node);
         throw new Error("unexpected node operator");
       }
-    } else if (targetOperator === "*") {
+    } else if (sek === SimpleExpressionKind.product) {
       assert(
         node.operator !== "+" && node.operator !== "-",
         "+ and - not allowed when finding factors of an expression"

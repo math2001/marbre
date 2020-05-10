@@ -36,25 +36,44 @@ export function testEqual() {
       arguments: [parse("a - d"), parse("-d + a")],
       output: true,
     },
+    // {
+    //   arguments: [parse("2 + 2"), parse("3 + 1")],
+    //   output: true,
+    // },
+    // {
+    //   arguments: [parse("1 / 2"), parse("0.5")],
+    //   output: true,
+    // },
+    // {
+    //   arguments: [parse("2 + 2"), parse("4")],
+    //   output: true,
+    // },
+    // {
+    //   arguments: [parse("2 a + 3 b"), parse("2 (a + b) + b")],
+    //   output: true,
+    // },
+  ]);
+}
+
 export function testEvalLiteralNumberInSimpleExpression() {
   return testTable(evalLiteralNumberInSimpleExpression, [
     {
       arguments: [
-        getTermsFromTree(parse("2 a 3 4 e"), "*"),
+        getTermsFromTree(parse("2 a 3 4 e"), SimpleExpressionKind.product),
         SimpleExpressionKind.product,
       ],
       output: [24, "a", "e"],
     },
     {
       arguments: [
-        getTermsFromTree(parse("2 + a + 3 + 4  + e"), "+"),
+        getTermsFromTree(parse("2 + a + 3 + 4  + e"), SimpleExpressionKind.sum),
         SimpleExpressionKind.sum,
       ],
       output: [9, "a", "e"],
     },
     {
       arguments: [
-        getTermsFromTree(parse("1 + 2a + 3a + 4 "), "+"),
+        getTermsFromTree(parse("1 + 2a + 3a + 4 "), SimpleExpressionKind.sum),
         SimpleExpressionKind.sum,
       ],
       output: [5, parse("2a"), parse("3a")],
@@ -147,7 +166,10 @@ export function testGetMultiple() {
 export function testGetTermsFromTree() {
   const table: TableRow[] = [
     {
-      arguments: [parse("a * (b + c) - d + 3 e ^ pi - 7"), "+"],
+      arguments: [
+        parse("a * (b + c) - d + 3 e ^ pi - 7"),
+        SimpleExpressionKind.sum,
+      ],
       output: [
         parse("a * (b + c)"),
         parse("- d"),
@@ -156,19 +178,19 @@ export function testGetTermsFromTree() {
       ],
     },
     {
-      arguments: [parse("1*(a+b)+c"), "+"],
+      arguments: [parse("1*(a+b)+c"), SimpleExpressionKind.sum],
       output: [parse("1*(a+b)"), parse("c")],
     },
     {
-      arguments: [parse("(a+b)+c"), "+"],
+      arguments: [parse("(a+b)+c"), SimpleExpressionKind.sum],
       output: ["a", "b", "c"],
     },
     {
-      arguments: [parse("a - 2 * b * c + d"), "+"],
+      arguments: [parse("a - 2 * b * c + d"), SimpleExpressionKind.sum],
       output: [parse("a"), parse("-2 * b * c"), parse("d")],
     },
     {
-      arguments: [parse("a * (2 * 3) * 4"), "*"],
+      arguments: [parse("a * (2 * 3) * 4"), SimpleExpressionKind.product],
       output: ["a", 2, 3, 4],
     },
   ];
