@@ -89,6 +89,10 @@ export function testParse() {
       arguments: ["-(a+b)^2"],
       output: parse("-((a+b)^2)"),
     },
+    {
+      arguments: ["e^pi i"],
+      output: parse("(e^pi) i"),
+    },
   ];
   return testTable(parse, table, tree2expression);
 }
