@@ -59,7 +59,7 @@ export function collectLikeTerms(root: Node, targetTerm: string): Node {
   // return sum(x * sum(collections list), ...leftovers)
   const leftovers: Node[] = [];
   const coefficients: Node[] = [];
-  for (let term of getTermsFromTree(root)) {
+  for (let term of getTermsFromTree(root, "+")) {
     const multiple = getMultiple(term, targetTerm);
     if (multiple === 0) {
       leftovers.push(term);
@@ -149,13 +149,25 @@ export function getMultiple(root: Node, targetTerm: string): Node {
   return copy;
 }
 
-export function getTermsFromTree(tree: Node): Node[] {
+export function getTermsFromTree(tree: Node, targetOperator: string): Node[] {
+  if (targetOperator === "-") {
+    throw new Error("use +, not -");
+  } else if (targetOperator === "/") {
+    throw new Error("use *, not /");
+  }
+  if (targetOperator !== "+" && targetOperator !== "*") {
+    throw new Error(`invalid target operator: ${targetOperator}`);
+  }
   const terms: Node[] = [];
 
   const collect = (node: Node) => {
     if (typeof node === "string" || typeof node === "number") {
       terms.push(node);
-    } else if (node.operator === "+") {
+      return;
+    }
+
+    if (targetOperator === "+") {
+      if (node.operator === "+") {
       collect(node.left);
       collect(node.right);
     } else if (node.operator === "-") {
@@ -170,6 +182,28 @@ export function getTermsFromTree(tree: Node): Node[] {
     } else {
       console.error("node", node);
       throw new Error("unexpected node operator");
+    }
+    } else if (targetOperator === "*") {
+      assert(
+        node.operator !== "+" && node.operator !== "-",
+        "+ and - not allowed when finding factors of an expression"
+      );
+      if (node.operator === "*") {
+        collect(node.left);
+        collect(node.right);
+      } else if (node.operator === "/") {
+        collect(node.left);
+        collect({
+          left: 1,
+          operator: "/",
+          right: node.right,
+        });
+      } else if (node.operator === "^") {
+        terms.push(node);
+      } else {
+        console.error(node);
+        throw new Error(`unknown operator ${node.operator}`);
+      }
     }
   };
 

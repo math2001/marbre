@@ -86,7 +86,7 @@ export function testGetMultiple() {
 export function testGetTermsFromTree() {
   const table: TableRow[] = [
     {
-      arguments: [parse("a * (b + c) - d + 3 e ^ pi - 7")],
+      arguments: [parse("a * (b + c) - d + 3 e ^ pi - 7"), "+"],
       output: [
         parse("a * (b + c)"),
         parse("- d"),
@@ -95,16 +95,20 @@ export function testGetTermsFromTree() {
       ],
     },
     {
-      arguments: [parse("1*(a+b)+c")],
+      arguments: [parse("1*(a+b)+c"), "+"],
       output: [parse("1*(a+b)"), parse("c")],
     },
     {
-      arguments: [parse("(a+b)+c")],
+      arguments: [parse("(a+b)+c"), "+"],
       output: ["a", "b", "c"],
     },
     {
-      arguments: [parse("a - 2 * b * c + d")],
+      arguments: [parse("a - 2 * b * c + d"), "+"],
       output: [parse("a"), parse("-2 * b * c"), parse("d")],
+    },
+    {
+      arguments: [parse("a * (2 * 3) * 4"), "*"],
+      output: ["a", 2, 3, 4],
     },
   ];
   return testTable(getTermsFromTree, table);
