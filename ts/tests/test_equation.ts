@@ -207,6 +207,22 @@ export function testNegateTerm() {
       arguments: [parse("a * b * c")],
       output: parse("-(a * b * c)"),
     },
+    {
+      arguments: [parse("-b")],
+      output: "b",
+    },
+    {
+      arguments: [parse("a+b")],
+      output: parse("-(a+b)"),
+    },
+    {
+      arguments: [parse("-(a+b)")],
+      output: parse("a+b"),
+    },
+    {
+      arguments: [parse("-a+b")],
+      output: parse("-(-a+b)"),
+    },
   ];
   return testTable(negateTerm, table);
 }

@@ -313,34 +313,64 @@ export function negateTerm(node: Node): Node {
   }
 
   const copy = Object.assign({}, node);
-  const tryToNegateNumber = (node: ParentNode): boolean => {
+
+  const tryToNegateNumber = (
+    parent: ParentNode,
+    direction: childKey
+  ): boolean => {
     // return true if it did negate a number (so that the chain can stop negating)
+
+    const node = parent[direction];
+    assert(isParentNode(node));
 
     if (node.operator !== "*" && node.operator !== "/") {
       return false;
     }
 
     if (typeof node.left === "number") {
+      // if there is a * -1, then we just remove the -1
+      if (node.left === -1) {
+        parent[direction] = node.right;
+      } else {
       node.left = -node.left;
+      }
       return true;
     }
 
-    if (typeof node.left !== "string" && tryToNegateNumber(node.left)) {
+    if (
+      typeof node.left !== "string" &&
+      tryToNegateNumber(node, childKey.left)
+    ) {
       return true;
     }
 
     if (typeof node.right === "number") {
+      if (node.right === -1) {
+        parent[direction] = node.left;
+      } else {
       node.right = -node.right;
+      }
       return true;
     }
 
-    if (typeof node.right !== "string" && tryToNegateNumber(node.right)) {
+    if (
+      typeof node.right !== "string" &&
+      tryToNegateNumber(node, childKey.right)
+    ) {
       return true;
     }
     return false;
   };
 
-  if (!tryToNegateNumber(copy)) {
+  // use a parent like this so that the child can change copy (which is a node)
+  // to be a string or a number
+  const parent = {
+    left: 0, // this will be ignore anyway, look at the return statement
+    operator: "+",
+    right: copy,
+  };
+
+  if (!tryToNegateNumber(parent, childKey.right)) {
     // couldn't find a number to negate the entire term
     return {
       left: -1,
@@ -348,7 +378,7 @@ export function negateTerm(node: Node): Node {
       right: copy,
     };
   }
-  return copy;
+  return parent.right;
 }
 
 export function getTreeFromTerms(terms: Node[]): Node {
