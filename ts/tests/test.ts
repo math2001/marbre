@@ -6,12 +6,13 @@ import {
   testGetTermsFromTree,
   testNegateTerm,
   testGetMultiple,
-  testGetTreeFromTerm,
+  testGetTreeFromTerms,
   testCollectLikeTerms,
   testExpand,
   testEqual,
   testFindAllIdentifiers,
   testEvalLiteralNumberInSimpleExpression,
+  testLinearSolve,
 } from "./test_equation.js";
 import { testObjectEqual } from "./test_utils.js";
 
@@ -29,12 +30,13 @@ export interface TableRow {
     testGetTermsFromTree,
     testNegateTerm,
     testGetMultiple,
-    testGetTreeFromTerm,
+    testGetTreeFromTerms,
     testCollectLikeTerms,
     testExpand,
     testEqual,
     testFindAllIdentifiers,
     testEvalLiteralNumberInSimpleExpression,
+    testLinearSolve,
   ];
 
   let totalSuccesses = 0;

@@ -1,6 +1,6 @@
 import { assert, objectEqual, pprint } from "./utils.js";
 import { ParentNode, Node, Leaf, isParentNode, isLeaf } from "./parser.js";
-import { testGetTreeFromTerm } from "./tests/test_equation.js";
+import { testGetTreeFromTerms } from "./tests/test_equation.js";
 import { tree2expression } from "./tree2expression.js";
 
 enum childKey {
@@ -11,6 +11,93 @@ enum childKey {
 export enum SimpleExpressionKind {
   product = "product",
   sum = "sum",
+}
+
+// for now, just support equation with two sides. Probably gonna stay like this for a while
+// equation = [lhs, rhs]
+export type Equation = [Node, Node];
+
+export function linearSolve(
+  lhs: Node,
+  rhs: Node,
+  targetTerm: string
+): Equation[] {
+  let general: Node = {
+    left: lhs,
+    operator: "-",
+    right: rhs,
+  };
+
+  general = expand(general);
+
+  general = collectLikeTerms(general, targetTerm);
+
+  console.log(tree2expression(general));
+
+  const cancelOutExpression = (root: Node): Node => {
+    return getTreeFromTerms(
+      evalLiteralNumberInSimpleExpression(
+        getTermsFromTree(root, SimpleExpressionKind.sum),
+        SimpleExpressionKind.sum
+      ),
+      SimpleExpressionKind.sum
+    );
+  };
+
+  if (typeof general === "string") {
+    return [[general, 0]];
+  } else if (typeof general === "number") {
+    // no solution, we are in the case 3 = 0
+    return [];
+  }
+
+  assert(isParentNode(general));
+
+  console.log("general", general);
+  console.log("general", tree2expression(general));
+  let coefficient: Node;
+  let constants: Node;
+  const terms = getTermsFromTree(general, SimpleExpressionKind.sum);
+  const firstTerm = terms[0];
+  assert(firstTerm !== undefined);
+  if (
+    isParentNode(firstTerm) &&
+    firstTerm.operator === "*" &&
+    firstTerm.right === targetTerm
+  ) {
+    coefficient = cancelOutExpression(firstTerm.left);
+    constants = cancelOutExpression(
+      getTreeFromTerms(terms.slice(1), SimpleExpressionKind.sum)
+    );
+  } else {
+    assert(!findAllIdentifiers(general).includes(targetTerm));
+    coefficient = 0;
+    constants = general;
+  }
+
+  coefficient = cancelOutExpression(coefficient);
+  console.log("coefficient", tree2expression(coefficient));
+  console.log("constants", tree2expression(constants));
+
+  if (coefficient === 0) {
+    console.log("return constant");
+    return [[constants, 0]];
+  } else if (coefficient === 1) {
+    console.log("coeff equals 1");
+    return [[targetTerm, negateTerm(constants)]];
+  } else {
+    console.log("complex solution");
+    return [
+      [
+        targetTerm,
+        {
+          left: negateTerm(constants),
+          operator: "/",
+          right: coefficient,
+        },
+      ],
+    ];
+  }
 }
 
 export function equal(a: Node, b: Node): boolean {
@@ -48,11 +135,11 @@ export function equal(a: Node, b: Node): boolean {
 
 // adds/multiplies the naked literal number (not multiplied by an identifier)
 export function evalLiteralNumberInSimpleExpression(
-  terms: Leaf[],
+  terms: Node[],
   sek: SimpleExpressionKind
-): Leaf[] {
+): Node[] {
   let coefficient: number = 0;
-  const identifiers: string[] = [];
+  const leftOverFactors: (ParentNode | string)[] = [];
 
   if (sek === SimpleExpressionKind.product) {
     coefficient = 1;
@@ -65,7 +152,7 @@ export function evalLiteralNumberInSimpleExpression(
       if (sek === SimpleExpressionKind.product) coefficient *= term;
       else coefficient += term;
     } else {
-      identifiers.push(term);
+      leftOverFactors.push(term);
     }
   }
 
@@ -73,9 +160,18 @@ export function evalLiteralNumberInSimpleExpression(
     if (sek === SimpleExpressionKind.product) {
       return [];
     }
-    return identifiers;
+    return leftOverFactors;
   }
-  return [coefficient, ...identifiers];
+
+  // these two expressions are equivalent mathematically, but they are more
+  // intuitive to see. We usualy have:
+  //   2ab and not ab*2
+  //   a + b + 2 and not 2 + a + b
+  if (sek === SimpleExpressionKind.product) {
+    return [coefficient, ...leftOverFactors];
+  } else {
+    return [...leftOverFactors, coefficient];
+  }
 }
 
 // returns a *sorted* array of all the identifiers
@@ -134,7 +230,7 @@ export function expand(root: Node): Node {
       throw new Error(`unknown operator ${node.operator}`);
     }
   };
-  return getTreeFromTerms(dfs(root));
+  return getTreeFromTerms(dfs(root), SimpleExpressionKind.sum);
 }
 
 export function collectLikeTerms(root: Node, targetTerm: string): Node {
@@ -160,14 +256,17 @@ export function collectLikeTerms(root: Node, targetTerm: string): Node {
     }
   }
 
-  return getTreeFromTerms([
-    {
-      left: getTreeFromTerms(coefficients),
-      operator: "*",
-      right: targetTerm,
-    },
-    ...leftovers,
-  ]);
+  return getTreeFromTerms(
+    [
+      {
+        left: getTreeFromTerms(coefficients, SimpleExpressionKind.sum),
+        operator: "*",
+        right: targetTerm,
+      },
+      ...leftovers,
+    ],
+    SimpleExpressionKind.sum
+  );
 }
 
 // getMultiple(parse('a*b*x'), x) -> a*b
@@ -332,7 +431,7 @@ export function negateTerm(node: Node): Node {
       if (node.left === -1) {
         parent[direction] = node.right;
       } else {
-      node.left = -node.left;
+        node.left = -node.left;
       }
       return true;
     }
@@ -348,7 +447,7 @@ export function negateTerm(node: Node): Node {
       if (node.right === -1) {
         parent[direction] = node.left;
       } else {
-      node.right = -node.right;
+        node.right = -node.right;
       }
       return true;
     }
@@ -381,23 +480,34 @@ export function negateTerm(node: Node): Node {
   return parent.right;
 }
 
-export function getTreeFromTerms(terms: Node[]): Node {
+export function getTreeFromTerms(
+  terms: Node[],
+  sek: SimpleExpressionKind
+): Node {
   if (terms.length === 0) {
     return 0;
   }
   if (terms.length === 1) {
     return terms[0];
   }
+
+  let operator;
+  if (sek === SimpleExpressionKind.product) {
+    operator = "*";
+  } else {
+    operator = "+";
+  }
+
   let leftNode: ParentNode = {
     left: terms[0],
-    operator: "+",
+    operator: operator,
     right: terms[1],
   };
 
   for (let i = 2; i < terms.length; i++) {
     leftNode = {
       left: leftNode,
-      operator: "+",
+      operator: operator,
       right: terms[i],
     };
   }

@@ -10,9 +10,45 @@ import {
   findAllIdentifiers,
   evalLiteralNumberInSimpleExpression,
   SimpleExpressionKind,
+  linearSolve,
 } from "../equation.js";
 import { parse } from "../parser.js";
 import { tree2expression } from "../tree2expression.js";
+
+export function testLinearSolve() {
+  return testTable(
+    linearSolve,
+    [
+      {
+        arguments: [parse("a x"), parse("b"), "x"],
+        output: [["x", parse("b / a")]],
+      },
+      {
+        arguments: [parse("3 x + 4"), parse("-5x + 3"), "x"],
+        output: [
+          [
+            "x",
+            {
+              left: -1,
+              operator: "/",
+              right: 8,
+            },
+          ],
+        ],
+      },
+      {
+        arguments: [parse("3 + x + 2"), parse("6 - 2 x + 5"), "x"],
+        output: [["x", 2]],
+      },
+      {
+        arguments: [parse("a + x"), parse("x"), "x"],
+        output: [["a", 0]],
+      },
+    ],
+    (solutions) =>
+      solutions.length === 1 ? tree2expression(solutions[0][1]) : solutions
+  );
+}
 
 export function testEqual() {
   return testTable(equal, [
@@ -69,14 +105,23 @@ export function testEvalLiteralNumberInSimpleExpression() {
         getTermsFromTree(parse("2 + a + 3 + 4  + e"), SimpleExpressionKind.sum),
         SimpleExpressionKind.sum,
       ],
-      output: [9, "a", "e"],
+      output: ["a", "e", 9],
     },
+    // technically, these next ones aren't simple expression, hence they don't get
+    // simplified as much as one would expect.
     {
       arguments: [
         getTermsFromTree(parse("1 + 2a + 3a + 4 "), SimpleExpressionKind.sum),
         SimpleExpressionKind.sum,
       ],
-      output: [5, parse("2a"), parse("3a")],
+      output: [parse("2a"), parse("3a"), 5],
+    },
+    {
+      arguments: [
+        getTermsFromTree(parse("(1 + 2) a + 3 + 4"), SimpleExpressionKind.sum),
+        SimpleExpressionKind.sum,
+      ],
+      output: [parse("(1 + 2) a"), 7],
     },
   ]);
 }
@@ -227,15 +272,19 @@ export function testNegateTerm() {
   return testTable(negateTerm, table);
 }
 
-export function testGetTreeFromTerm() {
+export function testGetTreeFromTerms() {
   const table: TableRow[] = [
     {
-      arguments: [["a", "b", "c"]],
+      arguments: [["a", "b", "c"], SimpleExpressionKind.sum],
       output: parse("a+b+c"),
     },
     {
-      arguments: [["a", -2, "c"]],
+      arguments: [["a", -2, "c"], SimpleExpressionKind.sum],
       output: parse("a+(-2)+c"),
+    },
+    {
+      arguments: [["a", -2, "c"], SimpleExpressionKind.product],
+      output: parse("a * (-2) * c"),
     },
   ];
   return testTable(getTreeFromTerms, table);
