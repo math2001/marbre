@@ -1,6 +1,7 @@
-import { SimpleExpressionKind, negateTerm } from "../equation.js";
+import { SimpleExpressionKind } from "../equation.js";
 import { assert } from "../utils.js";
 import { Node, ParentNode } from "../parser.js";
+import { negateTerm } from "./manipulators.js";
 
 export function termsToTree(terms: Node[], sek: SimpleExpressionKind): Node {
   if (terms.length === 0) {

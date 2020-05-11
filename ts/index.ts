@@ -2,8 +2,9 @@ import { tokenize } from "./tokenizer.js";
 import { parse } from "./parser.js";
 import { assert } from "./utils.js";
 import { tree2expression } from "./tree2expression.js";
-import { expand, SimpleExpressionKind } from "./equation.js";
+import { SimpleExpressionKind } from "./equation.js";
 import { treeToTerms } from "./equations/tree_conversion.js";
+import { expand } from "./equations/manipulators.js";
 
 function render(expression: string) {
   const elements = {

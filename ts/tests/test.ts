@@ -3,13 +3,11 @@ import { testParse } from "./test_parse.js";
 import { testTokenizer } from "./test_tokenizer.js";
 import { testQueue } from "./test_queue.js";
 import {
-  testNegateTerm,
   testGetMultiple,
   testCollectLikeTerms,
-  testExpand,
-  testEqual,
   testFindAllIdentifiers,
   testLinearSolve,
+  testEqual,
 } from "./test_equations/test_equation.js";
 import { testObjectEqual } from "./test_utils.js";
 import {
@@ -17,6 +15,10 @@ import {
   testTermsToTree,
 } from "./test_equations/test_tree_conversion.js";
 import { testEvalLiteralNumberInSimpleExpression } from "./test_equations/test_eval.js";
+import {
+  testNegateTerm,
+  testExpand,
+} from "./test_equations/test_manipulators.js";
 
 export interface TableRow {
   arguments: any[];
