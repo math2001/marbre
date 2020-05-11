@@ -3,7 +3,7 @@ export function assert(
   message?: string
 ): asserts condition {
   if (!condition) {
-    throw new Error("assertion error: " + message !== "" ? message : "");
+    throw new Error("assertion error" + (message ? ": " + message : ""));
   }
 }
 
