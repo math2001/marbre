@@ -1,7 +1,7 @@
-import { Node } from "./parser.js";
+import { Node, isNumber, isLeaf } from "./parser.js";
 
 export function tree2expression(node: Node): string {
-  if (typeof node === "string" || typeof node === "number") {
+  if (isLeaf(node)) {
     return `${node}`;
   }
 

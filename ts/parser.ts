@@ -25,6 +25,14 @@ export enum ChildKey {
   right = "right",
 }
 
+export function isNumber(node: Node): node is number {
+  return typeof node === "number";
+}
+
+export function isIdentifier(node: Node): node is string {
+  return typeof node === "string";
+}
+
 function greaterBindingPower(
   operator: string,
   lastOperator: string | null
@@ -77,7 +85,7 @@ export function parseTokenStream(
       nextToken.type === TYPE.IDENTIFIER
     ) {
       let right = parseTokenStream(tokens, "*");
-      if (typeof right === "number") {
+      if (isNumber(right)) {
         leftNode = -right;
       } else {
         leftNode = {
@@ -132,7 +140,7 @@ export function parseTokenStream(
         right: parseTokenStream(tokens, "*"),
       };
     } else if (nextToken.type === TYPE.OPERATOR) {
-      assert(typeof nextToken.value === "string");
+      assert(isIdentifier(nextToken.value));
 
       if (greaterBindingPower(nextToken.value, lastOperator)) {
         tokens.consume();
@@ -158,8 +166,8 @@ export function parse(expression: string): Node {
 
 export function isParentNode(node: Node): node is ParentNode {
   return (
-    typeof node !== "number" &&
-    typeof node !== "string" &&
+    !isNumber(node) &&
+    !isIdentifier(node) &&
     "left" in node &&
     "right" in node &&
     "operator" in node
@@ -167,5 +175,5 @@ export function isParentNode(node: Node): node is ParentNode {
 }
 
 export function isLeaf(node: Node): node is Leaf {
-  return typeof node === "number" || typeof node === "string";
+  return isNumber(node) || isIdentifier(node);
 }

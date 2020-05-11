@@ -1,5 +1,13 @@
 import { assert, objectEqual, pprint } from "./utils.js";
-import { ParentNode, Node, ChildKey, isParentNode, isLeaf } from "./parser.js";
+import {
+  ParentNode,
+  Node,
+  ChildKey,
+  isParentNode,
+  isLeaf,
+  isIdentifier,
+  isNumber,
+} from "./parser.js";
 import { tree2expression } from "./tree2expression.js";
 import { termsToTree, treeToTerms } from "./equations/tree_conversion.js";
 import { evalLiteralNumberInSimpleExpression } from "./equations/eval.js";
@@ -41,9 +49,9 @@ export function linearSolve(
     );
   };
 
-  if (typeof general === "string") {
+  if (isIdentifier(general)) {
     return [[general, 0]];
-  } else if (typeof general === "number") {
+  } else if (isNumber(general)) {
     // no solution, we are in the case 3 = 0
     return [];
   }
@@ -134,11 +142,11 @@ export function equal(a: Node, b: Node): boolean {
 export function findAllIdentifiers(root: Node): string[] {
   const identifiers: Set<string> = new Set<string>();
   const dfs = (node: Node) => {
-    if (typeof node === "number") {
+    if (isNumber(node)) {
       return;
     }
 
-    if (typeof node === "string") {
+    if (isIdentifier(node)) {
       identifiers.add(node);
       return;
     }
@@ -153,7 +161,7 @@ export function findAllIdentifiers(root: Node): string[] {
 }
 
 export function collectLikeTerms(root: Node, targetTerm: string): Node {
-  if (typeof root === "number" || typeof root === "string") {
+  if (isNumber(root) || isIdentifier(root)) {
     return root;
   }
   const copy = Object.assign({}, root);
@@ -195,16 +203,16 @@ export function collectLikeTerms(root: Node, targetTerm: string): Node {
 export function getMultiple(root: Node, targetTerm: string): Node {
   assert(targetTerm !== undefined, "target term is undefined");
 
-  if (typeof root === "string") {
+  if (isIdentifier(root)) {
     if (root === targetTerm) {
       return 1;
     } else {
       return 0;
     }
-  } else if (typeof root === "number") {
+  } else if (isNumber(root)) {
     return 0;
   }
-  //  else if (typeof root === "number") {
+  //  else if (isNumber(root)) {
   //   if (root === targetTerm) {
   //     return 1;
   //   } else {

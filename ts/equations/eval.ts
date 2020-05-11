@@ -1,6 +1,6 @@
 import { SimpleExpressionKind } from "../equation.js";
 import { assert } from "../utils.js";
-import { Node, ParentNode } from "../parser.js";
+import { Node, ParentNode, isNumber } from "../parser.js";
 
 // evalLiteralNumber evaluates as much as is mathematically possible
 export function evalLiteralNumber(root: Node): Node {
@@ -22,7 +22,7 @@ export function evalLiteralNumberInSimpleExpression(
   }
 
   for (let term of terms) {
-    if (typeof term === "number") {
+    if (isNumber(term) {
       if (sek === SimpleExpressionKind.product) coefficient *= term;
       else coefficient += term;
     } else {

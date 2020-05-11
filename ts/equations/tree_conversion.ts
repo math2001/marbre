@@ -1,6 +1,6 @@
 import { SimpleExpressionKind } from "../equation.js";
 import { assert } from "../utils.js";
-import { Node, ParentNode } from "../parser.js";
+import { Node, ParentNode, isIdentifier, isNumber } from "../parser.js";
 import { negateTerm } from "./manipulators.js";
 
 export function termsToTree(terms: Node[], sek: SimpleExpressionKind): Node {
@@ -39,7 +39,7 @@ export function treeToTerms(tree: Node, sek: SimpleExpressionKind): Node[] {
   const terms: Node[] = [];
 
   const collect = (node: Node) => {
-    if (typeof node === "string" || typeof node === "number") {
+    if (isIdentifier(node) || isNumber(node)) {
       terms.push(node);
       return;
     }

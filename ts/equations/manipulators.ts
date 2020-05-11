@@ -1,20 +1,27 @@
 // this function look in the tree if it can't find a number which we can replace
 // with -number to negate the entire term so that we don't have an ugly -1 *
 
-import { isParentNode, Node, ParentNode, ChildKey } from "../parser.js";
+import {
+  isParentNode,
+  Node,
+  ParentNode,
+  ChildKey,
+  isIdentifier,
+  isNumber,
+} from "../parser.js";
 import { assert } from "../utils.js";
 import { termsToTree } from "./tree_conversion.js";
 import { SimpleExpressionKind } from "../equation.js";
 
 // Node operation.
 export function negateTerm(node: Node): Node {
-  if (typeof node === "string") {
+  if (isIdentifier(node)) {
     return {
       left: -1,
       operator: "*",
       right: node,
     };
-  } else if (typeof node === "number") {
+  } else if (isNumber(node)) {
     return node * -1;
   }
 
@@ -33,7 +40,7 @@ export function negateTerm(node: Node): Node {
       return false;
     }
 
-    if (typeof node.left === "number") {
+    if (isNumber(node.left)) {
       // if there is a * -1, then we just remove the -1
       if (node.left === -1) {
         parent[direction] = node.right;
@@ -43,14 +50,11 @@ export function negateTerm(node: Node): Node {
       return true;
     }
 
-    if (
-      typeof node.left !== "string" &&
-      tryToNegateNumber(node, ChildKey.left)
-    ) {
+    if (!isIdentifier(node.left) && tryToNegateNumber(node, ChildKey.left)) {
       return true;
     }
 
-    if (typeof node.right === "number") {
+    if (isNumber(node.right)) {
       if (node.right === -1) {
         parent[direction] = node.left;
       } else {
@@ -59,10 +63,7 @@ export function negateTerm(node: Node): Node {
       return true;
     }
 
-    if (
-      typeof node.right !== "string" &&
-      tryToNegateNumber(node, ChildKey.right)
-    ) {
+    if (!isIdentifier(node.right) && tryToNegateNumber(node, ChildKey.right)) {
       return true;
     }
     return false;
@@ -92,7 +93,7 @@ export function expand(root: Node): Node {
 
   const dfs = (node: Node): Node[] => {
     // dfs returns the list of expanded terms in a product or in a sum
-    if (typeof node === "string" || typeof node === "number") {
+    if (isIdentifier(node) || isNumber(node)) {
       return [node];
     } else if (node.operator === "+") {
       return [...dfs(node.left), ...dfs(node.right)];
