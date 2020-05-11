@@ -1,12 +1,8 @@
 import { assert, objectEqual, pprint } from "./utils.js";
-import { ParentNode, Node, Leaf, isParentNode, isLeaf } from "./parser.js";
-import { testGetTreeFromTerms } from "./tests/test_equation.js";
+import { ParentNode, Node, ChildKey, isParentNode, isLeaf } from "./parser.js";
 import { tree2expression } from "./tree2expression.js";
-
-enum childKey {
-  left = "left",
-  right = "right",
-}
+import { termsToTree, treeToTerms } from "./equations/tree_conversion.js";
+import { evalLiteralNumberInSimpleExpression } from "./equations/eval.js";
 
 export enum SimpleExpressionKind {
   product = "product",
@@ -35,9 +31,9 @@ export function linearSolve(
   console.log(tree2expression(general));
 
   const cancelOutExpression = (root: Node): Node => {
-    return getTreeFromTerms(
+    return termsToTree(
       evalLiteralNumberInSimpleExpression(
-        getTermsFromTree(root, SimpleExpressionKind.sum),
+        treeToTerms(root, SimpleExpressionKind.sum),
         SimpleExpressionKind.sum
       ),
       SimpleExpressionKind.sum
@@ -57,7 +53,7 @@ export function linearSolve(
   console.log("general", tree2expression(general));
   let coefficient: Node;
   let constants: Node;
-  const terms = getTermsFromTree(general, SimpleExpressionKind.sum);
+  const terms = treeToTerms(general, SimpleExpressionKind.sum);
   const firstTerm = terms[0];
   assert(firstTerm !== undefined);
   if (
@@ -67,7 +63,7 @@ export function linearSolve(
   ) {
     coefficient = cancelOutExpression(firstTerm.left);
     constants = cancelOutExpression(
-      getTreeFromTerms(terms.slice(1), SimpleExpressionKind.sum)
+      termsToTree(terms.slice(1), SimpleExpressionKind.sum)
     );
   } else {
     assert(!findAllIdentifiers(general).includes(targetTerm));
@@ -101,15 +97,15 @@ export function linearSolve(
 }
 
 export function equal(a: Node, b: Node): boolean {
-  const termsA = getTermsFromTree(expand(a), SimpleExpressionKind.sum);
-  const termsB = getTermsFromTree(expand(b), SimpleExpressionKind.sum);
+  const termsA = treeToTerms(expand(a), SimpleExpressionKind.sum);
+  const termsB = treeToTerms(expand(b), SimpleExpressionKind.sum);
 
   // FIXME: implement my own sort. Every element should be sorted the same way
   // every time. Here the sort only does it's job well because we aren't sorting
   // any nodes (only string and integers). Also, .sort() does *in-place* sort.
   const sortedTermsA: Node[][] = new Array(termsA.length);
   for (let i in termsA) {
-    sortedTermsA[i] = getTermsFromTree(
+    sortedTermsA[i] = treeToTerms(
       termsA[i],
       SimpleExpressionKind.product
     ).sort();
@@ -120,7 +116,7 @@ export function equal(a: Node, b: Node): boolean {
   }
   const sortedTermsB: Node[][] = new Array(termsB.length);
   for (let i in termsA) {
-    sortedTermsB[i] = getTermsFromTree(
+    sortedTermsB[i] = treeToTerms(
       termsB[i],
       SimpleExpressionKind.product
     ).sort();
@@ -131,47 +127,6 @@ export function equal(a: Node, b: Node): boolean {
   }
 
   return objectEqual(sortedTermsA.sort(), sortedTermsB.sort());
-}
-
-// adds/multiplies the naked literal number (not multiplied by an identifier)
-export function evalLiteralNumberInSimpleExpression(
-  terms: Node[],
-  sek: SimpleExpressionKind
-): Node[] {
-  let coefficient: number = 0;
-  const leftOverFactors: (ParentNode | string)[] = [];
-
-  if (sek === SimpleExpressionKind.product) {
-    coefficient = 1;
-  } else {
-    assert(sek === SimpleExpressionKind.sum);
-  }
-
-  for (let term of terms) {
-    if (typeof term === "number") {
-      if (sek === SimpleExpressionKind.product) coefficient *= term;
-      else coefficient += term;
-    } else {
-      leftOverFactors.push(term);
-    }
-  }
-
-  if (coefficient === 0) {
-    if (sek === SimpleExpressionKind.product) {
-      return [];
-    }
-    return leftOverFactors;
-  }
-
-  // these two expressions are equivalent mathematically, but they are more
-  // intuitive to see. We usualy have:
-  //   2ab and not ab*2
-  //   a + b + 2 and not 2 + a + b
-  if (sek === SimpleExpressionKind.product) {
-    return [coefficient, ...leftOverFactors];
-  } else {
-    return [...leftOverFactors, coefficient];
-  }
 }
 
 // returns a *sorted* array of all the identifiers
@@ -230,7 +185,7 @@ export function expand(root: Node): Node {
       throw new Error(`unknown operator ${node.operator}`);
     }
   };
-  return getTreeFromTerms(dfs(root), SimpleExpressionKind.sum);
+  return termsToTree(dfs(root), SimpleExpressionKind.sum);
 }
 
 export function collectLikeTerms(root: Node, targetTerm: string): Node {
@@ -247,7 +202,7 @@ export function collectLikeTerms(root: Node, targetTerm: string): Node {
   // return sum(x * sum(collections list), ...leftovers)
   const leftovers: Node[] = [];
   const coefficients: Node[] = [];
-  for (let term of getTermsFromTree(root, SimpleExpressionKind.sum)) {
+  for (let term of treeToTerms(root, SimpleExpressionKind.sum)) {
     const multiple = getMultiple(term, targetTerm);
     if (multiple === 0) {
       leftovers.push(term);
@@ -256,10 +211,10 @@ export function collectLikeTerms(root: Node, targetTerm: string): Node {
     }
   }
 
-  return getTreeFromTerms(
+  return termsToTree(
     [
       {
-        left: getTreeFromTerms(coefficients, SimpleExpressionKind.sum),
+        left: termsToTree(coefficients, SimpleExpressionKind.sum),
         operator: "*",
         right: targetTerm,
       },
@@ -301,7 +256,7 @@ export function getMultiple(root: Node, targetTerm: string): Node {
   assert(root.operator === "*" || root.operator === "/");
 
   let foundTerm = false;
-  const bfs = (parent: ParentNode, direction: childKey) => {
+  const bfs = (parent: ParentNode, direction: ChildKey) => {
     if (foundTerm) return;
     if (parent.operator === "^") {
       throw new Error("support for exponents not implemented");
@@ -318,8 +273,8 @@ export function getMultiple(root: Node, targetTerm: string): Node {
       foundTerm = true;
       parent[direction] = child.left;
     } else {
-      if (isParentNode(child.left)) bfs(child, childKey.left);
-      if (isParentNode(child.right)) bfs(child, childKey.left);
+      if (isParentNode(child.left)) bfs(child, ChildKey.left);
+      if (isParentNode(child.right)) bfs(child, ChildKey.left);
     }
   };
 
@@ -330,71 +285,14 @@ export function getMultiple(root: Node, targetTerm: string): Node {
     return copy.left;
   }
 
-  if (isParentNode(copy.left)) bfs(copy, childKey.left);
-  if (isParentNode(copy.right)) bfs(copy, childKey.right);
+  if (isParentNode(copy.left)) bfs(copy, ChildKey.left);
+  if (isParentNode(copy.right)) bfs(copy, ChildKey.right);
 
   if (!foundTerm) return 0;
 
   assert(!objectEqual(copy, root));
 
   return copy;
-}
-
-export function getTermsFromTree(
-  tree: Node,
-  sek: SimpleExpressionKind
-): Node[] {
-  const terms: Node[] = [];
-
-  const collect = (node: Node) => {
-    if (typeof node === "string" || typeof node === "number") {
-      terms.push(node);
-      return;
-    }
-
-    if (sek === SimpleExpressionKind.sum) {
-      if (node.operator === "+") {
-        collect(node.left);
-        collect(node.right);
-      } else if (node.operator === "-") {
-        collect(node.left);
-        collect(negateTerm(node.right));
-      } else if (
-        node.operator === "*" ||
-        node.operator === "^" ||
-        node.operator === "/"
-      ) {
-        terms.push(node);
-      } else {
-        console.error("node", node);
-        throw new Error("unexpected node operator");
-      }
-    } else if (sek === SimpleExpressionKind.product) {
-      assert(
-        node.operator !== "+" && node.operator !== "-",
-        "+ and - not allowed when finding factors of an expression"
-      );
-      if (node.operator === "*") {
-        collect(node.left);
-        collect(node.right);
-      } else if (node.operator === "/") {
-        collect(node.left);
-        collect({
-          left: 1,
-          operator: "/",
-          right: node.right,
-        });
-      } else if (node.operator === "^") {
-        terms.push(node);
-      } else {
-        console.error(node);
-        throw new Error(`unknown operator ${node.operator}`);
-      }
-    }
-  };
-
-  collect(tree);
-  return terms;
 }
 
 // this function look in the tree if it can't find a number which we can replace
@@ -415,7 +313,7 @@ export function negateTerm(node: Node): Node {
 
   const tryToNegateNumber = (
     parent: ParentNode,
-    direction: childKey
+    direction: ChildKey
   ): boolean => {
     // return true if it did negate a number (so that the chain can stop negating)
 
@@ -438,7 +336,7 @@ export function negateTerm(node: Node): Node {
 
     if (
       typeof node.left !== "string" &&
-      tryToNegateNumber(node, childKey.left)
+      tryToNegateNumber(node, ChildKey.left)
     ) {
       return true;
     }
@@ -454,7 +352,7 @@ export function negateTerm(node: Node): Node {
 
     if (
       typeof node.right !== "string" &&
-      tryToNegateNumber(node, childKey.right)
+      tryToNegateNumber(node, ChildKey.right)
     ) {
       return true;
     }
@@ -469,7 +367,7 @@ export function negateTerm(node: Node): Node {
     right: copy,
   };
 
-  if (!tryToNegateNumber(parent, childKey.right)) {
+  if (!tryToNegateNumber(parent, ChildKey.right)) {
     // couldn't find a number to negate the entire term
     return {
       left: -1,
@@ -478,39 +376,4 @@ export function negateTerm(node: Node): Node {
     };
   }
   return parent.right;
-}
-
-export function getTreeFromTerms(
-  terms: Node[],
-  sek: SimpleExpressionKind
-): Node {
-  if (terms.length === 0) {
-    return 0;
-  }
-  if (terms.length === 1) {
-    return terms[0];
-  }
-
-  let operator;
-  if (sek === SimpleExpressionKind.product) {
-    operator = "*";
-  } else {
-    operator = "+";
-  }
-
-  let leftNode: ParentNode = {
-    left: terms[0],
-    operator: operator,
-    right: terms[1],
-  };
-
-  for (let i = 2; i < terms.length; i++) {
-    leftNode = {
-      left: leftNode,
-      operator: operator,
-      right: terms[i],
-    };
-  }
-
-  return leftNode;
 }

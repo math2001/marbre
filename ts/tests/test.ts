@@ -3,18 +3,20 @@ import { testParse } from "./test_parse.js";
 import { testTokenizer } from "./test_tokenizer.js";
 import { testQueue } from "./test_queue.js";
 import {
-  testGetTermsFromTree,
   testNegateTerm,
   testGetMultiple,
-  testGetTreeFromTerms,
   testCollectLikeTerms,
   testExpand,
   testEqual,
   testFindAllIdentifiers,
-  testEvalLiteralNumberInSimpleExpression,
   testLinearSolve,
-} from "./test_equation.js";
+} from "./test_equations/test_equation.js";
 import { testObjectEqual } from "./test_utils.js";
+import {
+  testTreeToTerms,
+  testTermsToTree,
+} from "./test_equations/test_tree_conversion.js";
+import { testEvalLiteralNumberInSimpleExpression } from "./test_equations/test_eval.js";
 
 export interface TableRow {
   arguments: any[];
@@ -27,10 +29,10 @@ export interface TableRow {
     testQueue,
     testTokenizer,
     testParse,
-    testGetTermsFromTree,
+    testTreeToTerms,
     testNegateTerm,
     testGetMultiple,
-    testGetTreeFromTerms,
+    testTermsToTree,
     testCollectLikeTerms,
     testExpand,
     testEqual,

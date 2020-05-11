@@ -21,6 +21,7 @@ export function testQueue() {
       if (popped !== 2) {
         return `should pop 2, got ${popped}`;
       }
+      return;
     },
 
     wrapping: () => {
@@ -47,6 +48,8 @@ export function testQueue() {
           return `should be pop ${value}, got ${popped}`;
         }
       }
+
+      return;
     },
 
     full: () => {
@@ -64,6 +67,8 @@ export function testQueue() {
       if (!queue.full()) {
         return `queue is full after wrapping but queue.full() is false`;
       }
+
+      return;
     },
   };
 

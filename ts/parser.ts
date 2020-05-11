@@ -20,6 +20,11 @@ export interface ParentNode {
   operator: string;
 }
 
+export enum ChildKey {
+  left = "left",
+  right = "right",
+}
+
 function greaterBindingPower(
   operator: string,
   lastOperator: string | null

@@ -2,7 +2,8 @@ import { tokenize } from "./tokenizer.js";
 import { parse } from "./parser.js";
 import { assert } from "./utils.js";
 import { tree2expression } from "./tree2expression.js";
-import { getTermsFromTree, expand } from "./equation.js";
+import { expand, SimpleExpressionKind } from "./equation.js";
+import { treeToTerms } from "./equations/tree_conversion.js";
 
 function render(expression: string) {
   const elements = {
@@ -59,7 +60,7 @@ function render(expression: string) {
   }
   elements.expandedExpression.textContent = `${tree2expression(
     expandedExpression
-  )}\n\n${getTermsFromTree(expandedExpression, "+")
+  )}\n\n${treeToTerms(expandedExpression, SimpleExpressionKind.sum)
     .map((term) => tree2expression(term))
     .join(" + ")}`;
 }
