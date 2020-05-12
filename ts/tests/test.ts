@@ -14,10 +14,7 @@ import {
   testTreeToTerms,
   testTermsToTree,
 } from "./test_equations/test_tree_conversion.js";
-import {
-  testEvalLiteralNumberInSimpleExpression,
-  testEvalLiteralNumber,
-} from "./test_equations/test_eval.js";
+import { testEvalLiteralNumber } from "./test_equations/test_eval.js";
 import {
   testNegateTerm,
   testExpand,
@@ -42,8 +39,7 @@ export interface TableRow {
     testExpand,
     testEqual,
     testFindAllIdentifiers,
-    testEvalLiteralNumberInSimpleExpression,
-    // testLinearSolve,
+    testLinearSolve,
     testEvalLiteralNumber,
   ];
 

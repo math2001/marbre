@@ -10,8 +10,8 @@ import {
 } from "./parser.js";
 import { tree2expression } from "./tree2expression.js";
 import { termsToTree, treeToTerms } from "./equations/tree_conversion.js";
-import { evalLiteralNumberInSimpleExpression } from "./equations/eval.js";
 import { expand, negateTerm } from "./equations/manipulators.js";
+import { evalLiteralNumber } from "./equations/eval.js";
 
 export enum SimpleExpressionKind {
   product = "product",
@@ -40,13 +40,7 @@ export function linearSolve(
   console.log(tree2expression(general));
 
   const cancelOutExpression = (root: Node): Node => {
-    return termsToTree(
-      evalLiteralNumberInSimpleExpression(
-        treeToTerms(root, SimpleExpressionKind.sum),
-        SimpleExpressionKind.sum
-      ),
-      SimpleExpressionKind.sum
-    );
+    return evalLiteralNumber(root);
   };
 
   if (isIdentifier(general)) {
