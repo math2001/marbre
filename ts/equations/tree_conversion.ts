@@ -62,10 +62,6 @@ export function treeToTerms(tree: Node, sek: SimpleExpressionKind): Node[] {
         throw new Error("unexpected node operator");
       }
     } else if (sek === SimpleExpressionKind.product) {
-      assert(
-        node.operator !== "+" && node.operator !== "-",
-        "+ and - not allowed when finding factors of an expression"
-      );
       if (node.operator === "*") {
         collect(node.left);
         collect(node.right);
@@ -76,7 +72,11 @@ export function treeToTerms(tree: Node, sek: SimpleExpressionKind): Node[] {
           operator: "/",
           right: node.right,
         });
-      } else if (node.operator === "^") {
+      } else if (
+        node.operator === "^" ||
+        node.operator === "+" ||
+        node.operator === "-"
+      ) {
         terms.push(node);
       } else {
         console.error(node);

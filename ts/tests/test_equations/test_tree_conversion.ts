@@ -52,6 +52,10 @@ export function testTreeToTerms() {
       output: ["a", 2, 3, 4],
     },
     {
+      arguments: [parse("a * (2 + 3 a) * 4"), SimpleExpressionKind.product],
+      output: ["a", parse("2 + 3 a"), 4],
+    },
+    {
       arguments: [parse("1 + 2a + 3a + 4"), SimpleExpressionKind.sum],
       output: [1, parse("2a"), parse("3a"), 4],
     },
