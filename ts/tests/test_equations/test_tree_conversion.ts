@@ -61,7 +61,15 @@ export function testTreeToTerms() {
     },
     {
       arguments: [parse("2 / 4"), SimpleExpressionKind.product],
-      output: [2, parse("1/4")],
+      output: [parse("2/4")],
+    },
+    {
+      arguments: [parse("2 * (2 / 4)"), SimpleExpressionKind.product],
+      output: [parse("2"), parse("(2/4)")],
+    },
+    {
+      arguments: [parse("(2 * 2) / 4"), SimpleExpressionKind.product],
+      output: [parse("(2 * 2) / 4)")],
     },
   ];
   return testTable(treeToTerms, table);

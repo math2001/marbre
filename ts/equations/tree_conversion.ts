@@ -65,17 +65,18 @@ export function treeToTerms(tree: Node, sek: SimpleExpressionKind): Node[] {
         collect(node.left);
         collect(node.right);
       } else if (node.operator === "/") {
-        // FIXME: this shouldn't be needed once fraction are implemented
-        if (isNumber(node.left) && node.left === 1) {
-          terms.push(node);
-        } else {
-          collect(node.left);
-          collect({
-            left: 1,
-            operator: "/",
-            right: node.right,
-          });
-        }
+        terms.push(node);
+        // // FIXME: this shouldn't be needed once fraction are implemented
+        // if (isNumber(node.left) && node.left === 1) {
+        //   terms.push(node);
+        // } else {
+        //   collect(node.left);
+        //   collect({
+        //     left: 1,
+        //     operator: "/",
+        //     right: node.right,
+        //   });
+        // }
       } else if (
         node.operator === "^" ||
         node.operator === "+" ||
