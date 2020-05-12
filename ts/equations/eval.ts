@@ -1,14 +1,19 @@
 import { SimpleExpressionKind } from "../equation.js";
 import { assert } from "../utils.js";
-import { Node, ParentNode, isNumber, isLeaf } from "../parser.js";
+import { Node, ParentNode, isNumber, isLeaf, isParentNode } from "../parser.js";
 import { treeToTerms, termsToTree } from "./tree_conversion.js";
 
 // evalLiteralNumber evaluates all the "naked" constants
 // 3a + 2 + 4a + 3 => 3a + 4a + 5
 export function evalLiteralNumber(root: Node): Node {
-  if (isLeaf(root)) {
+  // FIXME: this second condition shouldn't be required once fractions are implemented
+  if (
+    isLeaf(root) ||
+    (isParentNode(root) && root.operator === "/" && root.left === 1)
+  ) {
     return root;
   }
+
   if (root.operator === "-" || root.operator === "+") {
     let constant = 0;
 

@@ -1,5 +1,4 @@
 import { SimpleExpressionKind } from "../equation.js";
-import { assert } from "../utils.js";
 import { Node, ParentNode, isIdentifier, isNumber } from "../parser.js";
 import { negateTerm } from "./manipulators.js";
 
@@ -66,12 +65,17 @@ export function treeToTerms(tree: Node, sek: SimpleExpressionKind): Node[] {
         collect(node.left);
         collect(node.right);
       } else if (node.operator === "/") {
-        collect(node.left);
-        collect({
-          left: 1,
-          operator: "/",
-          right: node.right,
-        });
+        // FIXME: this shouldn't be needed once fraction are implemented
+        if (isNumber(node.left) && node.left === 1) {
+          terms.push(node);
+        } else {
+          collect(node.left);
+          collect({
+            left: 1,
+            operator: "/",
+            right: node.right,
+          });
+        }
       } else if (
         node.operator === "^" ||
         node.operator === "+" ||

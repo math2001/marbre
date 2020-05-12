@@ -24,6 +24,10 @@ export function testEvalLiteralNumber() {
       output: 15,
     },
     {
+      arguments: [parse("4 / 2")],
+      output: 2,
+    },
+    {
       arguments: [parse("1 + a + 2")],
       output: parse("a + 3"),
     },
