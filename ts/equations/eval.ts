@@ -1,16 +1,11 @@
 import { SimpleExpressionKind } from "../equation.js";
-import { assert } from "../utils.js";
 import { Node, ParentNode, isNumber, isLeaf, isParentNode } from "../parser.js";
 import { treeToTerms, termsToTree } from "./tree_conversion.js";
 
 // evalLiteralNumber evaluates all the "naked" constants
 // 3a + 2 + 4a + 3 => 3a + 4a + 5
 export function evalLiteralNumber(root: Node): Node {
-  // FIXME: this second condition shouldn't be required once fractions are implemented
-  if (
-    isLeaf(root) ||
-    (isParentNode(root) && root.operator === "/" && root.left === 1)
-  ) {
+  if (isLeaf(root)) {
     return root;
   }
 
@@ -33,7 +28,7 @@ export function evalLiteralNumber(root: Node): Node {
     return termsToTree(simplifiedSummands, SimpleExpressionKind.sum);
   }
 
-  if (root.operator === "*" || root.operator === "/") {
+  if (root.operator === "*") {
     let constant = 1;
 
     const factors = treeToTerms(root, SimpleExpressionKind.product);

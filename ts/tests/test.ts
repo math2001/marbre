@@ -39,8 +39,8 @@ export interface TableRow {
     testExpand,
     testEqual,
     testFindAllIdentifiers,
-    testLinearSolve,
     testEvalLiteralNumber,
+    testLinearSolve,
   ];
 
   let totalSuccesses = 0;

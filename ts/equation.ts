@@ -89,11 +89,11 @@ export function linearSolve(
     return [
       [
         targetTerm,
-        {
+        evalLiteralNumber({
           left: negateTerm(constants),
           operator: "/",
           right: coefficient,
-        },
+        }),
       ],
     ];
   }
